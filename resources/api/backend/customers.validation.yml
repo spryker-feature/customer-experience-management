@@ -1,0 +1,147 @@
+post:
+    email:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Email:
+              message: 'validation.email'
+        - Length:
+              max: 100
+              maxMessage: 'validation.max_length.plural'
+
+    salutation:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Choice:
+              choices: [Mr, Mrs, Dr, Ms, 'n/a']
+              message: 'validation.choice'
+
+    firstName:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              max: 100
+              maxMessage: 'validation.max_length.plural'
+        - Regex:
+              pattern: '/^[^:\/<>]+$/'
+
+    lastName:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              max: 100
+              maxMessage: 'validation.max_length.plural'
+        - Regex:
+              pattern: '/^[^:\/<>]+$/'
+
+    gender:
+        - Choice:
+              choices: [Male, Female]
+              message: 'validation.choice'
+
+    dateOfBirth:
+        - Date:
+              message: 'Please provide a valid date in YYYY-MM-DD format'
+
+    phone:
+        - Length:
+              max: 255
+              maxMessage: 'validation.max_length.plural'
+
+    company:
+        - Length:
+              max: 100
+              maxMessage: 'validation.max_length.plural'
+
+    localeName:
+        - Length:
+              max: 15
+              maxMessage: 'validation.max_length.plural'
+
+    storeName:
+        - Length:
+              max: 255
+              maxMessage: 'validation.max_length.plural'
+
+patch:
+    email:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Email:
+                        message: 'validation.email'
+                  - Length:
+                        max: 100
+                        maxMessage: 'validation.max_length.plural'
+
+    salutation:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Choice:
+                        choices: [Mr, Mrs, Dr, Ms, 'n/a']
+                        message: 'validation.choice'
+
+    firstName:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        max: 100
+                        maxMessage: 'validation.max_length.plural'
+                  - Regex:
+                        pattern: '/^[^:\/<>]+$/'
+
+    lastName:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        max: 100
+                        maxMessage: 'validation.max_length.plural'
+                  - Regex:
+                        pattern: '/^[^:\/<>]+$/'
+
+    gender:
+        - Optional:
+              constraints:
+                  - Choice:
+                        choices: [Male, Female]
+                        message: 'validation.choice'
+
+    dateOfBirth:
+        - Optional:
+              constraints:
+                  - Date:
+                        message: 'Please provide a valid date in YYYY-MM-DD format'
+
+    phone:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    company:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 100
+                        maxMessage: 'validation.max_length.plural'
+
+    localeName:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 15
+                        maxMessage: 'validation.max_length.plural'
+
+    storeName:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'

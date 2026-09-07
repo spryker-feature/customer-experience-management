@@ -1,0 +1,7 @@
+post:
+    message:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              max: 65535
+              maxMessage: 'validation.max_length.plural'

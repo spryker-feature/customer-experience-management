@@ -1,0 +1,308 @@
+resource:
+    name: CustomersAddresses
+    shortName: addresses
+    description: 'Customer address management for the Back Office (list, read, create, update, delete, default billing/shipping)'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerAddressesBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CustomerAddressesBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_USER')"
+
+    operations:
+        - type: GetCollection
+          description: >-
+              Retrieve a paginated address collection belonging to the given customer.
+              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
+              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Sorting: `sort` accepts firstName, lastName or zipCode, prefixed with `-` for
+              descending; an unsupported field returns 400. Without a sort the collection is
+              ordered by address id ascending, the same default the Back Office address table uses.
+          uriTemplate: '/customers/{customerReference}/addresses'
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+          openapiContext:
+              summary: 'List customer addresses'
+              responses:
+                  200:
+                      description: 'Address collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203).'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found.'
+
+        - type: Get
+          description: 'Retrieve a single address of the given customer by its uuid.'
+          uriTemplate: '/customers/{customerReference}/addresses/{uuid}'
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+              uuid:
+                  identifiers: [uuid]
+          openapiContext:
+              summary: 'Retrieve a customer address'
+              responses:
+                  200:
+                      description: 'Address returned.'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found, or the address does not belong to this customer.'
+
+        - type: Post
+          description: 'Create an address for the given customer. The first address of a customer becomes both the default billing and the default shipping address.'
+          uriTemplate: '/customers/{customerReference}/addresses'
+          deserialize: true
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+          openapiContext:
+              summary: 'Create a customer address'
+              responses:
+                  201:
+                      description: 'Address created.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found.'
+                  422:
+                      description: 'Validation failed. The body parsed, but one or more properties were rejected; errors carry a per-field `source.pointer`.'
+
+        - type: Patch
+          description: 'Partially update an address of the given customer. Setting isDefaultBilling or isDefaultShipping to true promotes this address and demotes the previous default.'
+          uriTemplate: '/customers/{customerReference}/addresses/{uuid}'
+          deserialize: true
+          extraProperties:
+              read: false
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+              uuid:
+                  identifiers: [uuid]
+          openapiContext:
+              summary: 'Update a customer address'
+              responses:
+                  200:
+                      description: 'Address updated. Only the properties present in the payload are applied.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found, or the address does not belong to this customer.'
+                  422:
+                      description: 'Validation failed. The body parsed, but one or more of the properties sent were rejected; errors carry a per-field `source.pointer`.'
+
+        - type: Delete
+          description: 'Delete an address of the given customer. The address row is removed; if it was a default billing or shipping address, the customer is left without that default.'
+          uriTemplate: '/customers/{customerReference}/addresses/{uuid}'
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+              uuid:
+                  identifiers: [uuid]
+          openapiContext:
+              summary: 'Delete a customer address'
+              responses:
+                  204:
+                      description: 'Address deleted.'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found, or the address does not belong to this customer.'
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: false
+            description: 'Public unique address identifier. The address database id is never exposed. Derived deterministically from the address and customer ids, so it is stable for the lifetime of the row.'
+            openapiContext:
+                example: '5caa05f5-41f5-5e6c-a254-07d7887fb4e9'
+
+        customerReference:
+            type: string
+            writable: false
+            readable: true
+            required: false
+            description: 'Reference of the customer owning this address.'
+            openapiContext:
+                example: 'DE--1'
+
+        salutation:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Salutation of the address recipient.'
+            openapiContext:
+                example: 'Mr'
+                enum: ['Mr', 'Mrs', 'Dr', 'Ms', 'n/a']
+
+        firstName:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            openapiContext:
+                example: 'Spencor'
+
+        lastName:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            openapiContext:
+                example: 'Hopkin'
+
+        address1:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Street name.'
+            openapiContext:
+                example: 'Julie-Wolfthorn-Straße'
+
+        address2:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'House number.'
+            openapiContext:
+                example: '1'
+
+        address3:
+            type: string
+            writable: true
+            readable: true
+            description: 'Additional address line.'
+            openapiContext:
+                example: 'Floor 3'
+
+        company:
+            type: string
+            writable: true
+            readable: true
+            openapiContext:
+                example: 'Spryker Systems GmbH'
+
+        city:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            openapiContext:
+                example: 'Berlin'
+
+        zipCode:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            openapiContext:
+                example: '10115'
+
+        iso2Code:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Two-letter ISO country code. Resolved to the country on write.'
+            openapiContext:
+                example: 'DE'
+
+        phone:
+            type: string
+            writable: true
+            readable: true
+            openapiContext:
+                example: '+49 30 234567890'
+
+        comment:
+            type: string
+            writable: true
+            readable: true
+            description: 'Free-text delivery instructions.'
+            openapiContext:
+                example: 'Please ring the doorbell twice.'
+
+        isDefaultBilling:
+            type: boolean
+            writable: true
+            readable: true
+            description: >-
+                Whether this is the customer's default billing address. Optional. Send `true` to make it
+                the default, replacing the current one. Leave it out and the address becomes the default
+                only if the customer has none yet — so a customer's first address always becomes their
+                default. Sending `false` never clears an existing default.
+            openapiContext:
+                example: true
+
+        isDefaultShipping:
+            type: boolean
+            writable: true
+            readable: true
+            description: >-
+                Whether this is the customer's default shipping address. Optional. Send `true` to make it
+                the default, replacing the current one. Leave it out and the address becomes the default
+                only if the customer has none yet — so a customer's first address always becomes their
+                default. Sending `false` never clears an existing default.
+            openapiContext:
+                example: true
+
+        country:
+            type: string
+            writable: false
+            readable: true
+            description: >-
+                Country name, derived from `iso2Code`. Always present on read, since every address has a
+                country. Read-only — there is nothing to send here; write `iso2Code` instead.
+            openapiContext:
+                example: 'Germany'
+
+        region:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: >-
+                ISO 3166-2 subdivision code of the region, as stored in the region table. The region must belong to the
+                country given by iso2Code, so changing iso2Code on an address that carries a region requires sending a
+                region of the new country in the same request. Installations that import no region data accept null only.
+            openapiContext:
+                example: 'DE-BE'
+
+        createdAt:
+            type: string
+            writable: false
+            readable: true
+            description: 'Timestamp when the address was created.'
+            openapiContext:
+                example: '2026-08-31 10:06:00.000000'
+
+        updatedAt:
+            type: string
+            writable: false
+            readable: true
+            description: 'Timestamp when the address was last updated.'
+            openapiContext:
+                example: '2026-08-31 12:30:00.000000'
+
+        pagination:
+            type: object
+            objectName: Pagination
+            writable: false
+            readable: true
+            required: false
+            description: 'Pagination details for the search result.'

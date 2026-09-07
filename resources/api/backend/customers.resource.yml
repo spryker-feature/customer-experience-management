@@ -1,0 +1,237 @@
+resource:
+    name: Customers
+    shortName: customers
+    description: 'Customer lifecycle management for the Back Office (list, read, create, update, GDPR anonymization)'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomersBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CustomersBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_USER')"
+
+    operations:
+        - type: GetCollection
+          openapiContext:
+              summary: 'List customers'
+              responses:
+                  200:
+                      description: 'Customer collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203).'
+                  401:
+                      description: 'Missing or expired access token.'
+          description: >-
+              Retrieve a paginated, filterable customer collection.
+              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
+              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Free-text search: `q`, OR-matched against email, first name and last name.
+              Filters follow the JSON:API `filter[customers.<property>]` form:
+              `filter[customers.email]` (exact), `filter[customers.customerReference]` (exact),
+              `filter[customers.firstName]` and `filter[customers.lastName]` (partial),
+              `filter[customers.includeAnonymized]` (boolean, brings anonymized customers into the
+              result; the default result is the active customers).
+              Sorting: `sort` accepts customerReference, createdAt, email, firstName, lastName or
+              registered, prefixed with `-` for descending; an unsupported field returns 400.
+
+        - type: Get
+          description: 'Retrieve a single customer by customer reference'
+          openapiContext:
+              summary: 'Retrieve a customer'
+              responses:
+                  200:
+                      description: 'Customer returned.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No customer matches the reference (error code 1201).'
+
+        - type: Post
+          description: 'Create a customer using the Back Office registration flow'
+          deserialize: true
+          openapiContext:
+              summary: 'Create a customer'
+              responses:
+                  201:
+                      description: 'Customer created. A registration-confirmation mail is sent unless skipSendingRegistrationToken is true.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  422:
+                      description: 'Schema validation failed, the facade rejected the customer — for example the email is already in use (error code 1202) — or sendPasswordToken was sent without storeName (error code 1204).'
+
+        - type: Patch
+          description: 'Partially update a customer'
+          deserialize: true
+          extraProperties:
+              read: false
+          openapiContext:
+              summary: 'Update a customer'
+              responses:
+                  200:
+                      description: 'Customer updated. Only the properties present in the payload are applied.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No customer matches the reference (error code 1201).'
+                  422:
+                      description: 'Schema validation failed or the facade rejected the update (error code 1202).'
+
+        - type: Delete
+          description: 'GDPR-anonymize the customer: retain the record, set anonymized_at, scrub the personal data and run the configured anonymizer plugin stack.'
+          openapiContext:
+              summary: 'Anonymize a customer'
+              responses:
+                  204:
+                      description: 'Customer anonymized: the record is retained with anonymized_at set and the personal data scrubbed.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No customer matches the reference (error code 1201).'
+
+    includes:
+        - relationshipName: notes
+          targetResource: CustomersNotes
+          uriVariableMappings:
+              customerReference: customerReference
+
+    properties:
+        customerReference:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: true
+            description: 'Public unique customer identifier. Addresses the customer in every operation.'
+            openapiContext:
+                example: 'DE--1'
+
+        email:
+            type: string
+            required: true
+            description: "Customer's email address, also used as the storefront username. Uniqueness is validated case-insensitively."
+            openapiContext:
+                example: 'spencor.hopkin@acme.com'
+
+        salutation:
+            type: string
+            required: true
+            description: "Customer's salutation."
+            openapiContext:
+                example: 'Mr'
+                enum: ['Mr', 'Mrs', 'Dr', 'Ms', 'n/a']
+
+        firstName:
+            type: string
+            required: true
+            description: "Customer's first name."
+            openapiContext:
+                example: 'Spencor'
+
+        lastName:
+            type: string
+            required: true
+            description: "Customer's last name."
+            openapiContext:
+                example: 'Hopkin'
+
+        gender:
+            type: string
+            description: "Customer's gender. Optional in the Back Office form; kept optional here."
+            openapiContext:
+                example: 'Male'
+                enum: ['Male', 'Female']
+
+        dateOfBirth:
+            type: string
+            nullable: true
+            description: "Customer's date of birth in YYYY-MM-DD format."
+            openapiContext:
+                example: '1990-01-15'
+
+        phone:
+            type: string
+            nullable: true
+            description: "Customer's phone number."
+            openapiContext:
+                example: '+49123456789'
+
+        company:
+            type: string
+            nullable: true
+            description: 'Free-text company label stored on the customer record and shown in the Back Office.'
+            openapiContext:
+                example: 'Acme Inc.'
+
+        localeName:
+            type: string
+            nullable: true
+            description: 'Locale assigned to the customer. When omitted on create, the facade assigns the current locale.'
+            openapiContext:
+                example: 'en_US'
+
+        storeName:
+            type: string
+            nullable: true
+            writable: true
+            description: 'Store context for outgoing mail templates. Required when sendPasswordToken is true.'
+            openapiContext:
+                example: 'DE'
+
+        sendPasswordToken:
+            type: boolean
+            writable: true
+            readable: false
+            description: 'Send a password-restore mail so the customer sets their own password. This is the only way the API assigns a password, mirroring the Back Office "Send password token through email" checkbox; requires storeName.'
+            openapiContext:
+                example: true
+
+        skipSendingRegistrationToken:
+            type: boolean
+            writable: true
+            readable: false
+            description: 'Suppress the registration-confirmation mail that customer registration sends by default.'
+            openapiContext:
+                example: false
+
+        registered:
+            type: string
+            writable: false
+            readable: true
+            nullable: true
+            description: 'Registration-confirmation date. Surfaced as the "Status"/"Registered at" column in the Back Office; set once the customer confirms registration, null until then.'
+            openapiContext:
+                example: '2026-08-27'
+
+        createdAt:
+            type: string
+            writable: false
+            readable: true
+            description: 'Timestamp when the customer was created.'
+            openapiContext:
+                example: '2026-08-27 10:06:00.000000'
+
+        updatedAt:
+            type: string
+            writable: false
+            readable: true
+            description: 'Timestamp when the customer was last updated.'
+            openapiContext:
+                example: '2026-08-27 12:30:00.000000'
+
+        anonymizedAt:
+            type: string
+            writable: false
+            readable: true
+            nullable: true
+            description: 'Set by DELETE (GDPR anonymization). A non-null value means the record is anonymized.'
+            openapiContext:
+                example: '2026-12-31 23:59:59'
+
+        pagination:
+            type: object
+            objectName: Pagination
+            writable: false
+            readable: true
+            required: false
+            description: 'Pagination details for the search result.'

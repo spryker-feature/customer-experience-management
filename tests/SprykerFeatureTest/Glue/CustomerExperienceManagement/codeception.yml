@@ -1,0 +1,30 @@
+namespace: SprykerFeatureTest\Glue\CustomerExperienceManagement
+
+paths:
+    tests: .
+    data: ../../../_data
+    support: _support
+    output: ../../../_output
+
+coverage:
+    enabled: true
+    remote: false
+    whitelist: { include: ['../../../../src/*'] }
+
+suites:
+    Backend:
+        path: Api/Backend
+        actor: CustomerExperienceManagementApiTester
+        modules:
+            enabled:
+                - Asserts
+                - \SprykerTest\Shared\Testify\Helper\Environment
+                - \SprykerTest\Shared\Testify\Helper\LocatorHelper
+                - \SprykerTest\Service\Container\Helper\ContainerHelper
+                - \SprykerTest\Shared\Testify\Helper\DependencyHelper
+                - \SprykerTest\Shared\Testify\Helper\ConfigHelper
+                - \SprykerTest\ApiPlatform\Helper\ApiPlatformHelper:
+                      mode: 'core'
+                      apiType: 'Backend'
+                - \SprykerTest\ApiPlatform\Helper\ApiProcessorProviderHelper
+                - \SprykerTest\Shared\Customer\Helper\CustomerDataHelper

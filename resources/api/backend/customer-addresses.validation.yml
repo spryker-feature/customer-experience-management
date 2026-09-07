@@ -1,0 +1,219 @@
+post:
+    salutation:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Choice:
+              choices: ['Mr', 'Mrs', 'Dr', 'Ms', 'n/a']
+              message: 'validation.choice'
+
+    firstName:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              min: 2
+              max: 100
+              minMessage: 'validation.min_length.plural'
+              maxMessage: 'validation.max_length.plural'
+        - Regex:
+              pattern: '/^[^:\/<>]+$/'
+
+    lastName:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              min: 2
+              max: 100
+              minMessage: 'validation.min_length.plural'
+              maxMessage: 'validation.max_length.plural'
+        - Regex:
+              pattern: '/^[^:\/<>]+$/'
+
+    address1:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              min: 2
+              max: 255
+              minMessage: 'validation.min_length.plural'
+              maxMessage: 'validation.max_length.plural'
+
+    address2:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              max: 255
+              maxMessage: 'validation.max_length.plural'
+
+    address3:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    city:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              min: 2
+              max: 255
+              minMessage: 'validation.min_length.plural'
+              maxMessage: 'validation.max_length.plural'
+
+    zipCode:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Length:
+              max: 15
+              maxMessage: 'validation.max_length.plural'
+
+    iso2Code:
+        - NotBlank:
+              message: 'validation.not_blank'
+        - Country: ~
+
+    region:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 6
+                        maxMessage: 'validation.max_length.plural'
+
+    phone:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    company:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    comment:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+patch:
+    salutation:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Choice:
+                        choices: ['Mr', 'Mrs', 'Dr', 'Ms', 'n/a']
+                        message: 'validation.choice'
+
+    firstName:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        min: 2
+                        max: 100
+                        minMessage: 'validation.min_length.plural'
+                        maxMessage: 'validation.max_length.plural'
+                  - Regex:
+                        pattern: '/^[^:\/<>]+$/'
+
+    lastName:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        min: 2
+                        max: 100
+                        minMessage: 'validation.min_length.plural'
+                        maxMessage: 'validation.max_length.plural'
+                  - Regex:
+                        pattern: '/^[^:\/<>]+$/'
+
+    address1:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        min: 2
+                        max: 255
+                        minMessage: 'validation.min_length.plural'
+                        maxMessage: 'validation.max_length.plural'
+
+    address2:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    address3:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    city:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        min: 2
+                        max: 255
+                        minMessage: 'validation.min_length.plural'
+                        maxMessage: 'validation.max_length.plural'
+
+    zipCode:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Length:
+                        max: 15
+                        maxMessage: 'validation.max_length.plural'
+
+    iso2Code:
+        - Optional:
+              constraints:
+                  - NotBlank:
+                        message: 'validation.not_blank'
+                  - Country: ~
+
+    region:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 6
+                        maxMessage: 'validation.max_length.plural'
+
+    phone:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    company:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'
+
+    comment:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+                        maxMessage: 'validation.max_length.plural'

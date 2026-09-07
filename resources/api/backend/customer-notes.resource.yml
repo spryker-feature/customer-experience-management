@@ -1,0 +1,138 @@
+resource:
+    name: CustomersNotes
+    shortName: notes
+    description: "Customer note timeline for the Back Office (list a customer's notes, append a note attributed to the acting operator)"
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerNotesBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CustomerNotesBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_USER')"
+
+    operations:
+        - type: GetCollection
+          description: >-
+              Retrieve a paginated note collection belonging to the given customer, newest first.
+              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
+              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Sorting: `sort` accepts createdAt, updatedAt or username, prefixed with `-` for
+              descending; an unsupported field returns 400.
+          uriTemplate: '/customers/{customerReference}/notes'
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+          openapiContext:
+              summary: 'List customer notes'
+              responses:
+                  200:
+                      description: 'Note collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203).'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found (error code 1201).'
+
+        - type: Get
+          description: 'Retrieve a single note of the given customer by its uuid.'
+          uriTemplate: '/customers/{customerReference}/notes/{uuid}'
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+              uuid:
+                  identifiers: [uuid]
+          openapiContext:
+              summary: 'Retrieve a customer note'
+              responses:
+                  200:
+                      description: 'Note returned.'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found, or the note does not belong to this customer.'
+
+        - type: Post
+          description: >-
+              Append a note to the given customer. The note is attributed to the operator whose
+              access token was used; the author cannot be supplied by the client.
+          uriTemplate: '/customers/{customerReference}/notes'
+          deserialize: true
+          read: false
+          uriVariables:
+              customerReference:
+                  identifiers: [customerReference]
+          openapiContext:
+              summary: 'Add a customer note'
+              responses:
+                  201:
+                      description: 'Note created and attributed to the acting operator.'
+                  401:
+                      description: 'Missing or invalid access token.'
+                  404:
+                      description: 'Customer not found (error code 1201).'
+                  422:
+                      description: 'Validation failed.'
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: false
+            description: 'Public unique note identifier. The note database id is never exposed. Derived deterministically from the note and customer ids, so it is stable for the lifetime of the row.'
+            openapiContext:
+                example: 'b1f7c3d2-8a41-5c6e-9d70-2e5b8f0a4c31'
+
+        customerReference:
+            type: string
+            writable: false
+            readable: true
+            required: false
+            description: 'Reference of the customer this note belongs to.'
+            openapiContext:
+                example: 'DE--1'
+
+        message:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'The note text. This is the only writable property of the resource.'
+            openapiContext:
+                example: 'Called the customer about invoice 4711; they will pay by Friday.'
+
+        username:
+            type: string
+            writable: false
+            readable: true
+            nullable: true
+            description: 'Display name of the Back Office user who wrote the note. Resolved from the access token when the note is created, so it cannot be set or changed through the API.'
+            openapiContext:
+                example: 'Admin Spryker'
+
+        createdAt:
+            type: string
+            writable: false
+            readable: true
+            description: 'Timestamp when the note was written.'
+            openapiContext:
+                example: '2026-08-31 10:06:00.000000'
+
+        updatedAt:
+            type: string
+            writable: false
+            readable: true
+            description: 'Timestamp when the note row was last touched.'
+            openapiContext:
+                example: '2026-08-31 10:06:00.000000'
+
+        pagination:
+            type: object
+            objectName: Pagination
+            writable: false
+            readable: true
+            required: false
+            description: 'Pagination details for the search result.'
