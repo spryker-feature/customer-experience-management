@@ -11,13 +11,13 @@ namespace SprykerFeatureTest\Glue\CustomerExperienceManagement\Api\Backend;
 
 use ApiPlatform\Metadata\GetCollection;
 use Generated\Api\Backend\CustomersBackendResource;
-use Generated\Api\Backend\Pagination;
 use Generated\Shared\Transfer\CustomerCollectionCriteriaTransfer;
 use Generated\Shared\Transfer\CustomerCollectionTransfer;
 use Generated\Shared\Transfer\CustomerResponseTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\PaginationTransfer;
 use Spryker\ApiPlatform\Exception\GlueApiException;
+use Spryker\ApiPlatform\ResponseTransform\PaginationLinksTransform;
 use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomersBackendProvider;
 use SprykerFeatureTest\Glue\CustomerExperienceManagement\CustomerExperienceManagementApiTester;
@@ -47,8 +47,6 @@ class CustomersBackendProviderTest extends BackendApiTestCase
     protected const string FILTER_SEARCH_TERM = 'filtered-search-term';
 
     protected const int ITEMS_PER_PAGE = 25;
-
-    protected const int PROVIDER_FALLBACK_LIMIT = 10;
 
     protected CustomerExperienceManagementApiTester $tester;
 
@@ -223,9 +221,9 @@ class CustomersBackendProviderTest extends BackendApiTestCase
     {
         return [
             'defaults to the operation items per page' => [[], 1, static::ITEMS_PER_PAGE],
-            'the page number from the generated OpenAPI document' => [
+            'a scalar page number is not part of the page window and is ignored' => [
                 ['page' => '3'],
-                3,
+                1,
                 static::ITEMS_PER_PAGE,
             ],
             'a non-numeric page number does not fail the request' => [
@@ -237,10 +235,10 @@ class CustomersBackendProviderTest extends BackendApiTestCase
             'second page' => [['page' => ['limit' => '5', 'offset' => '5']], 2, 5],
             'third page' => [['page' => ['limit' => '5', 'offset' => '10']], 3, 5],
             'partial offset resolves to its containing page' => [['page' => ['limit' => '5', 'offset' => '7']], 2, 5],
-            'non-positive limit falls back to the provider default' => [
+            'non-positive limit falls back to the operation page size' => [
                 ['page' => ['limit' => '0']],
                 1,
-                static::PROVIDER_FALLBACK_LIMIT,
+                static::ITEMS_PER_PAGE,
             ],
             'negative offset is clamped to the first page' => [['page' => ['limit' => '5', 'offset' => '-10']], 1, 5],
         ];
@@ -289,15 +287,14 @@ class CustomersBackendProviderTest extends BackendApiTestCase
         }
     }
 
-    public function testProvideCollectionSetsPaginationOnFirstResourceOnly(): void
+    public function testProvideCollectionPublishesTopLevelPaginationFromTheResultTotal(): void
     {
         // Arrange
         $customerCollectionTransfer = (new CustomerCollectionTransfer())
             ->addCustomer($this->tester->haveCustomerTransfer([CustomerTransfer::ID_CUSTOMER => 1]))
             ->addCustomer($this->tester->haveCustomerTransfer([CustomerTransfer::ID_CUSTOMER => 2]))
-            ->setPagination(
-                (new PaginationTransfer())->setPage(1)->setMaxPerPage(2)->setNbResults(7)->setLastPage(4),
-            );
+            ->setPagination((new PaginationTransfer())->setNbResults(7));
+        $request = new Request(['page' => ['limit' => '2', 'offset' => '2']]);
 
         $provider = $this->createProvider(['getCustomerCollectionByCollectionCriteria' => $customerCollectionTransfer]);
 
@@ -305,17 +302,16 @@ class CustomersBackendProviderTest extends BackendApiTestCase
         $resources = $provider->provide(
             $this->createGetCollectionOperation(),
             [],
-            $this->tester->getContext()->toArray(),
+            $this->tester->getContext(['request' => $request])->toArray(),
         );
 
         // Assert
         $this->assertCount(2, $resources);
-        $this->assertInstanceOf(Pagination::class, $resources[0]->pagination);
-        $this->assertSame(7, $resources[0]->pagination->getNumFound());
-        $this->assertSame(1, $resources[0]->pagination->getCurrentPage());
-        $this->assertSame(4, $resources[0]->pagination->getMaxPage());
-        $this->assertSame(2, $resources[0]->pagination->getCurrentItemsPerPage());
-        $this->assertNull($resources[1]->pagination, 'Only the first resource may carry the pagination metadata.');
+        $this->assertSame(
+            ['numFound' => 7, 'currentPage' => 2, 'maxPage' => 4, 'currentItemsPerPage' => 2],
+            $request->attributes->get(PaginationLinksTransform::REQUEST_ATTRIBUTE_PAGINATION),
+            'Pagination is published for the top-level meta, not as a resource attribute.',
+        );
     }
 
     public function testProvideCollectionReturnsEmptyArrayWithoutPaginationWhenNothingMatches(): void

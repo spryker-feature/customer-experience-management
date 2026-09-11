@@ -9,25 +9,12 @@ declare(strict_types=1);
 
 namespace SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request;
 
-use Generated\Shared\Transfer\PaginationTransfer;
 use Generated\Shared\Transfer\SortTransfer;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Exception\CollectionQueryExceptionFactory;
 use Symfony\Component\HttpFoundation\Request;
 
 class CollectionQueryReader implements CollectionQueryReaderInterface
 {
-    protected const string QUERY_PARAM_PAGE = 'page';
-
-    protected const string PAGE_PARAM_LIMIT = 'limit';
-
-    protected const string PAGE_PARAM_OFFSET = 'offset';
-
-    protected const int DEFAULT_LIMIT = 10;
-
-    protected const int DEFAULT_OFFSET = 0;
-
-    protected const int FIRST_PAGE = 1;
-
     protected const string QUERY_PARAM_SORT = 'sort';
 
     protected const string SORT_DESCENDING_PREFIX = '-';
@@ -39,38 +26,6 @@ class CollectionQueryReader implements CollectionQueryReaderInterface
 
     public function __construct(protected CollectionQueryExceptionFactory $exceptionFactory)
     {
-    }
-
-    public function getPaginationTransfer(Request $request, ?int $defaultItemsPerPage = null): PaginationTransfer
-    {
-        $page = $request->query->all()[static::QUERY_PARAM_PAGE] ?? null;
-        $limit = $this->resolveLimit($page, $defaultItemsPerPage);
-
-        return (new PaginationTransfer())
-            ->setPage($this->resolvePage($page, $limit))
-            ->setMaxPerPage($limit);
-    }
-
-    protected function resolveLimit(mixed $page, ?int $defaultItemsPerPage): int
-    {
-        $limit = $defaultItemsPerPage ?? static::DEFAULT_LIMIT;
-
-        if (is_array($page) && isset($page[static::PAGE_PARAM_LIMIT])) {
-            $limit = (int)$page[static::PAGE_PARAM_LIMIT];
-        }
-
-        return $limit < 1 ? static::DEFAULT_LIMIT : (int)$limit;
-    }
-
-    protected function resolvePage(mixed $page, int $limit): int
-    {
-        if (!is_array($page)) {
-            return max((int)$page, static::FIRST_PAGE);
-        }
-
-        $offset = (int)($page[static::PAGE_PARAM_OFFSET] ?? static::DEFAULT_OFFSET);
-
-        return intdiv(max($offset, 0), $limit) + static::FIRST_PAGE;
     }
 
     /**

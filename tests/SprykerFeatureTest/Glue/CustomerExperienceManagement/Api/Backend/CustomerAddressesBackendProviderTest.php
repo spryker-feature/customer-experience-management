@@ -11,7 +11,6 @@ namespace SprykerFeatureTest\Glue\CustomerExperienceManagement\Api\Backend;
 
 use ApiPlatform\Metadata\GetCollection;
 use Generated\Api\Backend\CustomersAddressesBackendResource;
-use Generated\Api\Backend\Pagination;
 use Generated\Shared\DataBuilder\AddressBuilder;
 use Generated\Shared\Transfer\AddressCollectionTransfer;
 use Generated\Shared\Transfer\AddressConditionsTransfer;
@@ -23,6 +22,7 @@ use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\PaginationTransfer;
 use ReflectionClass;
 use Spryker\ApiPlatform\Exception\GlueApiException;
+use Spryker\ApiPlatform\ResponseTransform\PaginationLinksTransform;
 use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerAddressesBackendProvider;
 use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
@@ -59,8 +59,6 @@ class CustomerAddressesBackendProviderTest extends BackendApiTestCase
     protected const string CITY = 'Berlin';
 
     protected const int ITEMS_PER_PAGE = 25;
-
-    protected const int READER_FALLBACK_LIMIT = 10;
 
     protected const string RESOURCE_PROPERTY_ID_CUSTOMER_ADDRESS = 'idCustomerAddress';
 
@@ -334,7 +332,7 @@ class CustomerAddressesBackendProviderTest extends BackendApiTestCase
         $this->assertSame([], $addressConditionsTransfer->getUuids());
     }
 
-    public function testProvideCollectionSetsPaginationOnFirstResourceOnly(): void
+    public function testProvideCollectionPublishesTopLevelPaginationFromTheResultTotal(): void
     {
         // Arrange
         $customerTransfer = $this->tester->haveCustomerTransfer();
@@ -345,8 +343,9 @@ class CustomerAddressesBackendProviderTest extends BackendApiTestCase
                 AddressTransfer::ID_CUSTOMER_ADDRESS => static::ID_OTHER_CUSTOMER_ADDRESS,
             ]))
             ->setPagination(
-                (new PaginationTransfer())->setPage(1)->setMaxPerPage(2)->setNbResults(7)->setLastPage(4),
+                (new PaginationTransfer())->setNbResults(7),
             );
+        $request = new Request(['page' => ['limit' => '2', 'offset' => '2']]);
 
         $provider = $this->createProvider([
             'findCustomerByReference' => $this->createCustomerResponse($customerTransfer),
@@ -357,17 +356,16 @@ class CustomerAddressesBackendProviderTest extends BackendApiTestCase
         $resources = $provider->provide(
             $this->createGetCollectionOperation(),
             [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-            $this->tester->getContext()->toArray(),
+            $this->tester->getContext(['request' => $request])->toArray(),
         );
 
         // Assert
         $this->assertCount(2, $resources);
-        $this->assertInstanceOf(Pagination::class, $resources[0]->pagination);
-        $this->assertSame(7, $resources[0]->pagination->getNumFound());
-        $this->assertSame(1, $resources[0]->pagination->getCurrentPage());
-        $this->assertSame(4, $resources[0]->pagination->getMaxPage());
-        $this->assertSame(2, $resources[0]->pagination->getCurrentItemsPerPage());
-        $this->assertNull($resources[1]->pagination, 'Only the first resource may carry the pagination metadata.');
+        $this->assertSame(
+            ['numFound' => 7, 'currentPage' => 2, 'maxPage' => 4, 'currentItemsPerPage' => 2],
+            $request->attributes->get(PaginationLinksTransform::REQUEST_ATTRIBUTE_PAGINATION),
+            'Pagination is published for the top-level meta, not as a resource attribute.',
+        );
     }
 
     public function testProvideCollectionReturnsEmptyArrayWhenTheCustomerHasNoAddresses(): void
@@ -423,9 +421,9 @@ class CustomerAddressesBackendProviderTest extends BackendApiTestCase
     {
         return [
             'defaults to the operation items per page' => [[], 1, static::ITEMS_PER_PAGE],
-            'the page number from the generated OpenAPI document' => [
+            'a scalar page number is not part of the page window and is ignored' => [
                 ['page' => '3'],
-                3,
+                1,
                 static::ITEMS_PER_PAGE,
             ],
             'a non-numeric page number does not fail the request' => [
@@ -436,10 +434,10 @@ class CustomerAddressesBackendProviderTest extends BackendApiTestCase
             'limit only' => [['page' => ['limit' => '5']], 1, 5],
             'second page' => [['page' => ['limit' => '5', 'offset' => '5']], 2, 5],
             'partial offset resolves to its containing page' => [['page' => ['limit' => '5', 'offset' => '7']], 2, 5],
-            'non-positive limit falls back to the reader default' => [
+            'non-positive limit falls back to the operation page size' => [
                 ['page' => ['limit' => '0']],
                 1,
-                static::READER_FALLBACK_LIMIT,
+                static::ITEMS_PER_PAGE,
             ],
             'negative offset is clamped to the first page' => [['page' => ['limit' => '5', 'offset' => '-10']], 1, 5],
         ];

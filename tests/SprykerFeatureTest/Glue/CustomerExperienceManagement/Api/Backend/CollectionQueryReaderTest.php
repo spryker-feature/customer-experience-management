@@ -30,13 +30,9 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class CollectionQueryReaderTest extends Unit
 {
-    protected const int READER_FALLBACK_LIMIT = 10;
-
-    protected const int OPERATION_ITEMS_PER_PAGE = 25;
-
-    /**
-     * @var list<string>
-     */
+ /**
+  * @var list<string>
+  */
     protected const array SORTABLE_FIELDS = [AddressTransfer::CITY, AddressTransfer::ZIP_CODE];
 
     /**
@@ -140,136 +136,6 @@ class CollectionQueryReaderTest extends Unit
         $this->expectException(GlueApiException::class);
 
         $collectionQueryReader->getSortCollection(new Request(['sort' => AddressTransfer::CITY]), []);
-    }
-
-    public function testGetPaginationTransferFallsBackToItsOwnLimitWhenTheOperationDeclaresNone(): void
-    {
-        // Arrange
-        $collectionQueryReader = $this->createCollectionQueryReader();
-
-        // Act
-        $paginationTransfer = $collectionQueryReader->getPaginationTransfer(new Request());
-
-        // Assert
-        $this->assertSame(1, $paginationTransfer->getPage());
-        $this->assertSame(static::READER_FALLBACK_LIMIT, $paginationTransfer->getMaxPerPage());
-    }
-
-    public function testGetPaginationTransferPrefersTheRequestLimitOverTheOperationDefault(): void
-    {
-        // Arrange
-        $collectionQueryReader = $this->createCollectionQueryReader();
-
-        // Act
-        $paginationTransfer = $collectionQueryReader->getPaginationTransfer(
-            new Request(['page' => ['limit' => '3']]),
-            50,
-        );
-
-        // Assert
-        $this->assertSame(3, $paginationTransfer->getMaxPerPage());
-    }
-
-    /**
-     * @dataProvider offsetToPageDataProvider
-     */
-    public function testGetPaginationTransferConvertsTheOffsetToTheContainingPage(
-        int $limit,
-        int $offset,
-        int $expectedPage
-    ): void {
-        // Arrange
-        $collectionQueryReader = $this->createCollectionQueryReader();
-
-        // Act
-        $paginationTransfer = $collectionQueryReader->getPaginationTransfer(
-            new Request(['page' => ['limit' => (string)$limit, 'offset' => (string)$offset]]),
-        );
-
-        // Assert
-        $this->assertSame($expectedPage, $paginationTransfer->getPage());
-        $this->assertSame($limit, $paginationTransfer->getMaxPerPage());
-    }
-
-    /**
-     * @return array<string, array{int, int, int}>
-     */
-    protected function offsetToPageDataProvider(): array
-    {
-        return [
-            'first page' => [5, 0, 1],
-            'exact page boundary' => [5, 5, 2],
-            'inside the second page' => [5, 7, 2],
-            'last item of the second page' => [5, 9, 2],
-            'third page' => [5, 10, 3],
-            'negative offset clamps to the first page' => [5, -10, 1],
-        ];
-    }
-
-    /**
-     * @dataProvider scalarPageDataProvider
-     */
-    public function testGetPaginationTransferReadsAScalarPageAsAPageNumber(
-        string $page,
-        int $expectedPage
-    ): void {
-        // Arrange
-        $collectionQueryReader = $this->createCollectionQueryReader();
-
-        // Act
-        $paginationTransfer = $collectionQueryReader->getPaginationTransfer(
-            new Request(['page' => $page]),
-            static::OPERATION_ITEMS_PER_PAGE,
-        );
-
-        // Assert
-        $this->assertSame($expectedPage, $paginationTransfer->getPage());
-        $this->assertSame(static::OPERATION_ITEMS_PER_PAGE, $paginationTransfer->getMaxPerPage());
-    }
-
-    /**
-     * @return array<string, array{string, int}>
-     */
-    protected function scalarPageDataProvider(): array
-    {
-        return [
-            'the page number API Platform documents' => ['3', 3],
-            'first page' => ['1', 1],
-            'zero clamps to the first page' => ['0', 1],
-            'negative clamps to the first page' => ['-2', 1],
-            'not a number resolves to the first page' => ['abc', 1],
-            'empty string resolves to the first page' => ['', 1],
-        ];
-    }
-
-    /**
-     * @dataProvider nonPositiveLimitDataProvider
-     */
-    public function testGetPaginationTransferFallsBackOnANonPositiveLimit(string $limit): void
-    {
-        // Arrange
-        $collectionQueryReader = $this->createCollectionQueryReader();
-
-        // Act
-        $paginationTransfer = $collectionQueryReader->getPaginationTransfer(
-            new Request(['page' => ['limit' => $limit]]),
-        );
-
-        // Assert
-        $this->assertSame(static::READER_FALLBACK_LIMIT, $paginationTransfer->getMaxPerPage());
-        $this->assertSame(1, $paginationTransfer->getPage());
-    }
-
-    /**
-     * @return array<string, array{string}>
-     */
-    protected function nonPositiveLimitDataProvider(): array
-    {
-        return [
-            'zero' => ['0'],
-            'negative' => ['-5'],
-            'not a number' => ['all'],
-        ];
     }
 
     protected function createCollectionQueryReader(): CollectionQueryReader

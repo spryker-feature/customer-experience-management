@@ -15,8 +15,8 @@ resource:
         - type: GetCollection
           description: >-
               Retrieve a paginated note collection belonging to the given customer, newest first.
-              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
-              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Pagination (JSON:API): `page[limit]` (default 10), `page[offset]` (default 0); the
+              pagination summary is returned as top-level `meta.pagination` with `links.first/last/prev/next`.
               Sorting: `sort` accepts createdAt, updatedAt or username, prefixed with `-` for
               descending; an unsupported field returns 400.
           uriTemplate: '/customers/{customerReference}/notes'
@@ -25,6 +25,15 @@ resource:
                   identifiers: [customerReference]
           openapiContext:
               summary: 'List customer notes'
+              parameters:
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Without it notes are returned newest first. Any other field returns 400 (error code 1203).'
+                    schema:
+                        type: string
+                        enum: ['createdAt', '-createdAt', 'updatedAt', '-updatedAt', 'username', '-username']
+                    example: '-createdAt'
               responses:
                   200:
                       description: 'Note collection returned, with JSON:API pagination links.'
@@ -128,11 +137,3 @@ resource:
             description: 'Timestamp when the note row was last touched.'
             openapiContext:
                 example: '2026-08-31 10:06:00.000000'
-
-        pagination:
-            type: object
-            objectName: Pagination
-            writable: false
-            readable: true
-            required: false
-            description: 'Pagination details for the search result.'

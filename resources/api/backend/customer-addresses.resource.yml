@@ -15,8 +15,8 @@ resource:
         - type: GetCollection
           description: >-
               Retrieve a paginated address collection belonging to the given customer.
-              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
-              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Pagination (JSON:API): `page[limit]` (default 10), `page[offset]` (default 0); the
+              pagination summary is returned as top-level `meta.pagination` with `links.first/last/prev/next`.
               Sorting: `sort` accepts firstName, lastName or zipCode, prefixed with `-` for
               descending; an unsupported field returns 400. Without a sort the collection is
               ordered by address id ascending, the same default the Back Office address table uses.
@@ -26,6 +26,15 @@ resource:
                   identifiers: [customerReference]
           openapiContext:
               summary: 'List customer addresses'
+              parameters:
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Without it addresses are ordered by id ascending. Any other field returns 400 (error code 1203).'
+                    schema:
+                        type: string
+                        enum: ['firstName', '-firstName', 'lastName', '-lastName', 'zipCode', '-zipCode']
+                    example: 'lastName'
               responses:
                   200:
                       description: 'Address collection returned, with JSON:API pagination links.'
@@ -298,11 +307,3 @@ resource:
             description: 'Timestamp when the address was last updated.'
             openapiContext:
                 example: '2026-08-31 12:30:00.000000'
-
-        pagination:
-            type: object
-            objectName: Pagination
-            writable: false
-            readable: true
-            required: false
-            description: 'Pagination details for the search result.'

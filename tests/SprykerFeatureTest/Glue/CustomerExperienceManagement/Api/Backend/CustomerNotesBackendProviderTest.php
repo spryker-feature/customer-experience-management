@@ -11,7 +11,6 @@ namespace SprykerFeatureTest\Glue\CustomerExperienceManagement\Api\Backend;
 
 use ApiPlatform\Metadata\GetCollection;
 use Generated\Api\Backend\CustomersNotesBackendResource;
-use Generated\Api\Backend\Pagination;
 use Generated\Shared\Transfer\CustomerNoteCollectionTransfer;
 use Generated\Shared\Transfer\CustomerNoteConditionsTransfer;
 use Generated\Shared\Transfer\CustomerNoteCriteriaTransfer;
@@ -19,6 +18,7 @@ use Generated\Shared\Transfer\CustomerResponseTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\PaginationTransfer;
 use Generated\Shared\Transfer\SpyCustomerNoteEntityTransfer;
+use Spryker\ApiPlatform\ResponseTransform\PaginationLinksTransform;
 use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use Spryker\Zed\CustomerNote\Business\CustomerNoteFacadeInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerNotesBackendProvider;
@@ -130,7 +130,7 @@ class CustomerNotesBackendProviderTest extends BackendApiTestCase
         );
     }
 
-    public function testProvideCollectionSetsPaginationOnTheFirstResourceOnly(): void
+    public function testProvideCollectionPublishesTopLevelPaginationFromTheResultTotal(): void
     {
         // Arrange
         $customerTransfer = $this->tester->haveCustomerTransfer();
@@ -139,8 +139,9 @@ class CustomerNotesBackendProviderTest extends BackendApiTestCase
             ->addNotes($this->createCustomerNoteEntityTransfer($customerTransfer->getIdCustomerOrFail()))
             ->addNotes($this->createCustomerNoteEntityTransfer($customerTransfer->getIdCustomerOrFail(), static::OTHER_UUID))
             ->setPagination(
-                (new PaginationTransfer())->setPage(1)->setMaxPerPage(2)->setNbResults(7)->setLastPage(4),
+                (new PaginationTransfer())->setNbResults(7),
             );
+        $request = new Request(['page' => ['limit' => '2', 'offset' => '2']]);
 
         $provider = $this->createProvider([
             'findCustomerByReference' => $this->createCustomerResponse($customerTransfer),
@@ -151,15 +152,16 @@ class CustomerNotesBackendProviderTest extends BackendApiTestCase
         $resources = $provider->provide(
             $this->createGetCollectionOperation(),
             [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-            $this->tester->getContext()->toArray(),
+            $this->tester->getContext(['request' => $request])->toArray(),
         );
 
         // Assert
         $this->assertCount(2, $resources);
-        $this->assertInstanceOf(Pagination::class, $resources[0]->pagination);
-        $this->assertSame(7, $resources[0]->pagination->getNumFound());
-        $this->assertSame(4, $resources[0]->pagination->getMaxPage());
-        $this->assertNull($resources[1]->pagination, 'Only the first resource may carry the pagination metadata.');
+        $this->assertSame(
+            ['numFound' => 7, 'currentPage' => 2, 'maxPage' => 4, 'currentItemsPerPage' => 2],
+            $request->attributes->get(PaginationLinksTransform::REQUEST_ATTRIBUTE_PAGINATION),
+            'Pagination is published for the top-level meta, not as a resource attribute.',
+        );
     }
 
     /**
@@ -203,7 +205,7 @@ class CustomerNotesBackendProviderTest extends BackendApiTestCase
     {
         return [
             'no pagination falls back to the operation default' => [[], 1, static::ITEMS_PER_PAGE],
-            'the page number from the generated OpenAPI document' => [['page' => '3'], 3, static::ITEMS_PER_PAGE],
+            'a scalar page number is not part of the page window and is ignored' => [['page' => '3'], 1, static::ITEMS_PER_PAGE],
             'a non-numeric page number does not fail the request' => [['page' => 'abc'], 1, static::ITEMS_PER_PAGE],
             'the JSON:API item window' => [['page' => ['limit' => '5', 'offset' => '10']], 3, 5],
             'a limit without an offset starts at the first page' => [['page' => ['limit' => '5']], 1, 5],
@@ -374,10 +376,6 @@ class CustomerNotesBackendProviderTest extends BackendApiTestCase
             1,
             $capturedCriteria->getPaginationOrFail()->getPage(),
             "The parent's page must not be applied to the included notes.",
-        );
-        $this->assertNull(
-            $resources[0]->pagination,
-            'Collection metadata belongs to the notes endpoint, not to an included relationship.',
         );
     }
 

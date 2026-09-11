@@ -14,14 +14,12 @@ use Generated\Shared\Transfer\CustomerCollectionCriteriaTransfer;
 use Generated\Shared\Transfer\CustomerConditionsTransfer;
 use Generated\Shared\Transfer\CustomerCriteriaSearchTermsTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
-use Generated\Shared\Transfer\PaginationTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use Spryker\Zed\Customer\CustomerConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Exception\CustomersBackendExceptionFactory;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CustomerResourceMapperInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\PaginationResourceMapperInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
 
 class CustomersBackendProvider extends AbstractBackendProvider
@@ -52,7 +50,6 @@ class CustomersBackendProvider extends AbstractBackendProvider
         protected SerializerServiceInterface $serializer,
         protected CustomersBackendExceptionFactory $exceptionFactory,
         protected CustomerResourceMapperInterface $customerResourceMapper,
-        protected PaginationResourceMapperInterface $paginationResourceMapper,
         protected CollectionQueryReaderInterface $collectionQueryReader,
         protected CustomerConfig $customerConfig,
     ) {
@@ -98,10 +95,7 @@ class CustomersBackendProvider extends AbstractBackendProvider
      */
     protected function provideCollection(): array
     {
-        $paginationTransfer = $this->collectionQueryReader->getPaginationTransfer(
-            $this->getRequest(),
-            $this->getOperation()->getPaginationItemsPerPage(),
-        );
+        $paginationTransfer = $this->buildPaginationTransfer();
 
         $customerCollectionCriteriaTransfer = (new CustomerCollectionCriteriaTransfer())
             ->setCustomerConditions($this->buildConditionsFromRequest())
@@ -126,27 +120,14 @@ class CustomersBackendProvider extends AbstractBackendProvider
             $customersBackendResources[] = $this->buildCustomersBackendResource($customerTransfer);
         }
 
-        return $this->expandFirstResourceWithPagination(
-            $customersBackendResources,
-            $customerCollectionTransfer->getPagination(),
-        );
-    }
-
-    /**
-     * @param array<\Generated\Api\Backend\CustomersBackendResource> $customersBackendResources
-     *
-     * @return array<\Generated\Api\Backend\CustomersBackendResource>
-     */
-    protected function expandFirstResourceWithPagination(
-        array $customersBackendResources,
-        ?PaginationTransfer $paginationTransfer
-    ): array {
-        if ($customersBackendResources === [] || $paginationTransfer === null) {
-            return $customersBackendResources;
+        $nbResults = $customerCollectionTransfer->getPagination()?->getNbResults();
+        if ($nbResults !== null) {
+            $this->setCollectionPagination(
+                $paginationTransfer->getOffsetOrFail(),
+                $paginationTransfer->getLimitOrFail(),
+                $nbResults,
+            );
         }
-
-        $customersBackendResources[0]->pagination = $this->paginationResourceMapper
-            ->mapPaginationTransferToPagination($paginationTransfer);
 
         return $customersBackendResources;
     }

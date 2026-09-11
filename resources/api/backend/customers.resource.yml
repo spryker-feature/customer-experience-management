@@ -15,6 +15,71 @@ resource:
         - type: GetCollection
           openapiContext:
               summary: 'List customers'
+              parameters:
+                  - name: 'q'
+                    in: query
+                    required: false
+                    description: 'Free-text search, OR-matched against email, first name and last name.'
+                    schema:
+                        type: string
+                    example: 'sonia'
+                  - name: 'filter[customers.email]'
+                    in: query
+                    required: false
+                    description: 'Return only the customer with this email (exact match).'
+                    schema:
+                        type: string
+                    example: 'sonia@spryker.com'
+                  - name: 'filter[customers.customerReference]'
+                    in: query
+                    required: false
+                    description: 'Return only the customer with this reference (exact match).'
+                    schema:
+                        type: string
+                    example: 'DE--21'
+                  - name: 'filter[customers.firstName]'
+                    in: query
+                    required: false
+                    description: 'Return only customers whose first name contains this fragment.'
+                    schema:
+                        type: string
+                    example: 'Son'
+                  - name: 'filter[customers.lastName]'
+                    in: query
+                    required: false
+                    description: 'Return only customers whose last name contains this fragment.'
+                    schema:
+                        type: string
+                    example: 'Wag'
+                  - name: 'filter[customers.includeAnonymized]'
+                    in: query
+                    required: false
+                    description: 'Include anonymized customers in the result. By default only active customers are returned.'
+                    schema:
+                        type: boolean
+                    example: true
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Any other field returns 400 (error code 1203).'
+                    schema:
+                        type: string
+                        enum:
+                            [
+                                'customerReference',
+                                '-customerReference',
+                                'createdAt',
+                                '-createdAt',
+                                'email',
+                                '-email',
+                                'firstName',
+                                '-firstName',
+                                'lastName',
+                                '-lastName',
+                                'registered',
+                                '-registered',
+                            ]
+                    example: '-createdAt'
               responses:
                   200:
                       description: 'Customer collection returned, with JSON:API pagination links.'
@@ -24,8 +89,8 @@ resource:
                       description: 'Missing or expired access token.'
           description: >-
               Retrieve a paginated, filterable customer collection.
-              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
-              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Pagination (JSON:API): `page[limit]` (default 10), `page[offset]` (default 0); the
+              pagination summary is returned as top-level `meta.pagination` with `links.first/last/prev/next`.
               Free-text search: `q`, OR-matched against email, first name and last name.
               Filters follow the JSON:API `filter[customers.<property>]` form:
               `filter[customers.email]` (exact), `filter[customers.customerReference]` (exact),
@@ -227,11 +292,3 @@ resource:
             description: 'Set by DELETE (GDPR anonymization). A non-null value means the record is anonymized.'
             openapiContext:
                 example: '2026-12-31 23:59:59'
-
-        pagination:
-            type: object
-            objectName: Pagination
-            writable: false
-            readable: true
-            required: false
-            description: 'Pagination details for the search result.'

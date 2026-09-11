@@ -18,7 +18,6 @@ use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\CustomerNote\CustomerNoteConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CustomerNoteResourceMapperInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\PaginationResourceMapperInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerNoteReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
@@ -34,7 +33,6 @@ class CustomerNotesBackendProvider extends AbstractBackendProvider
         protected CustomerReaderInterface $customerReader,
         protected CustomerNoteReaderInterface $customerNoteReader,
         protected CustomerNoteResourceMapperInterface $customerNoteResourceMapper,
-        protected PaginationResourceMapperInterface $paginationResourceMapper,
         protected CollectionQueryReaderInterface $collectionQueryReader,
         protected CustomerNoteConfig $customerNoteConfig,
     ) {
@@ -48,9 +46,11 @@ class CustomerNotesBackendProvider extends AbstractBackendProvider
         $customerTransfer = $this->getCustomerByUriVariable();
         $isRelationshipResolution = $this->isRelationshipResolution();
 
+        $paginationTransfer = $this->resolvePaginationTransfer($isRelationshipResolution);
+
         $customerNoteCollectionTransfer = $this->customerNoteReader->getNoteCollectionForCustomer(
             $customerTransfer,
-            $this->resolvePaginationTransfer($isRelationshipResolution),
+            $paginationTransfer,
             $this->resolveSortCollection($isRelationshipResolution),
         );
 
@@ -64,10 +64,16 @@ class CustomerNotesBackendProvider extends AbstractBackendProvider
             return $resources;
         }
 
-        return $this->expandFirstResourceWithPagination(
-            $resources,
-            $customerNoteCollectionTransfer->getPagination(),
-        );
+        $nbResults = $customerNoteCollectionTransfer->getPagination()?->getNbResults();
+        if ($nbResults !== null) {
+            $this->setCollectionPagination(
+                $paginationTransfer->getOffsetOrFail(),
+                $paginationTransfer->getLimitOrFail(),
+                $nbResults,
+            );
+        }
+
+        return $resources;
     }
 
     protected function provideItem(): ?object
@@ -90,15 +96,16 @@ class CustomerNotesBackendProvider extends AbstractBackendProvider
     protected function resolvePaginationTransfer(bool $isRelationshipResolution): PaginationTransfer
     {
         if (!$isRelationshipResolution) {
-            return $this->collectionQueryReader->getPaginationTransfer(
-                $this->getRequest(),
-                $this->getOperation()->getPaginationItemsPerPage(),
-            );
+            return $this->buildPaginationTransfer();
         }
+
+        $limit = $this->getOperation()->getPaginationItemsPerPage() ?? static::DEFAULT_PER_PAGE;
 
         return (new PaginationTransfer())
             ->setPage(static::DEFAULT_PAGE)
-            ->setMaxPerPage($this->getOperation()->getPaginationItemsPerPage() ?? static::DEFAULT_PER_PAGE);
+            ->setMaxPerPage($limit)
+            ->setLimit($limit)
+            ->setOffset(static::DEFAULT_OFFSET);
     }
 
     /**
@@ -114,23 +121,6 @@ class CustomerNotesBackendProvider extends AbstractBackendProvider
             $this->getRequest(),
             array_keys($this->customerNoteConfig->getCustomerNoteCollectionSortableFieldMap()),
         );
-    }
-
-    /**
-     * @param array<\Generated\Api\Backend\CustomersNotesBackendResource> $resources
-     *
-     * @return array<\Generated\Api\Backend\CustomersNotesBackendResource>
-     */
-    protected function expandFirstResourceWithPagination(array $resources, ?PaginationTransfer $paginationTransfer): array
-    {
-        if ($resources === [] || $paginationTransfer === null) {
-            return $resources;
-        }
-
-        $resources[0]->pagination = $this->paginationResourceMapper
-            ->mapPaginationTransferToPagination($paginationTransfer);
-
-        return $resources;
     }
 
     protected function buildResource(
