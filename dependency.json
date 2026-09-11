@@ -1,5 +1,6 @@
 {
     "include": {
-        "spryker/transfer": "Provides transfer objects definition with strict types and `::get*OrFail()` functionality."
+        "spryker/transfer": "Provides transfer objects definition with strict types and `::get*OrFail()` functionality.",
+        "spryker/user": "Publishes the acting user of a Backend API request, which ActingUserReader reads from the request attributes."
     }
 }

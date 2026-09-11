@@ -13,12 +13,9 @@ use Generated\Api\Backend\CustomersNotesBackendResource;
 use Generated\Shared\Transfer\CustomerResponseTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\SpyCustomerNoteEntityTransfer;
-use Generated\Shared\Transfer\UserCollectionTransfer;
 use Generated\Shared\Transfer\UserTransfer;
-use Spryker\ApiPlatform\EventSubscriber\IdentityRequestSubscriber;
 use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use Spryker\Zed\CustomerNote\Business\CustomerNoteFacadeInterface;
-use Spryker\Zed\User\Business\UserFacadeInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CustomerNotesBackendProcessor;
 use SprykerFeatureTest\Glue\CustomerExperienceManagement\CustomerExperienceManagementApiTester;
 use SprykerTest\ApiPlatform\Test\BackendApiTestCase;
@@ -54,7 +51,10 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
 
     protected const string CREATED_AT = '2026-08-31 10:06:00.000000';
 
-    protected const string CLAIM_ID_USER = 'id_user';
+    /**
+     * @uses \Spryker\Glue\User\Api\Backend\EventSubscriber\UserIdentityRequestSubscriber::ATTRIBUTE_USER_TRANSFER
+     */
+    protected const string ATTRIBUTE_USER_TRANSFER = 'UserTransfer';
 
     protected CustomerExperienceManagementApiTester $tester;
 
@@ -73,7 +73,7 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
             ]),
             $this->tester->getPostOperation(CustomersNotesBackendResource::class),
             [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-            $this->createContextWithClaims([static::CLAIM_ID_USER => static::ID_USER]),
+            $this->createContextWithActingUser($this->createActingUser()),
         );
 
         // Assert
@@ -100,7 +100,7 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
             ]),
             $this->tester->getPostOperation(CustomersNotesBackendResource::class),
             [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-            $this->createContextWithClaims([static::CLAIM_ID_USER => static::ID_USER]),
+            $this->createContextWithActingUser($this->createActingUser()),
         );
 
         // Assert
@@ -126,7 +126,7 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
             ]),
             $this->tester->getPostOperation(CustomersNotesBackendResource::class),
             [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-            $this->createContextWithClaims([static::CLAIM_ID_USER => static::ID_USER]),
+            $this->createContextWithActingUser($this->createActingUser()),
         );
 
         // Assert
@@ -154,7 +154,7 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
             ]),
             $this->tester->getPostOperation(CustomersNotesBackendResource::class),
             [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-            $this->createContextWithClaims([static::CLAIM_ID_USER => static::ID_USER]),
+            $this->createContextWithActingUser($this->createActingUser()),
         );
 
         // Assert
@@ -174,7 +174,6 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
             'addNote' => function (): SpyCustomerNoteEntityTransfer {
                 $this->fail('addNote() must not be called for an unknown customer reference.');
             }],
-            $this->createUserCollection(),
         );
 
         // Act & Assert
@@ -186,28 +185,24 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
                 ]),
                 $this->tester->getPostOperation(CustomersNotesBackendResource::class),
                 [CustomerTransfer::CUSTOMER_REFERENCE => static::UNKNOWN_CUSTOMER_REFERENCE],
-                $this->createContextWithClaims([static::CLAIM_ID_USER => static::ID_USER]),
+                $this->createContextWithActingUser($this->createActingUser()),
             ),
         );
     }
 
     /**
-     * @dataProvider unresolvableIdentityDataProvider
-     *
-     * @param array<string, mixed>|null $claims
+     * @dataProvider unresolvableActingUserDataProvider
      */
-    public function testProcessPostRefusesToWriteAnUnattributedNote(?array $claims, bool $hasUser): void
+    public function testProcessPostRefusesToWriteAnUnattributedNote(mixed $actingUser): void
     {
         // Arrange
         $customerTransfer = $this->tester->haveCustomerTransfer();
-
         $processor = $this->createProcessorWithFacades(
             ['findCustomerByReference' => (new CustomerResponseTransfer())->setHasCustomer(true)->setCustomerTransfer($customerTransfer)],
             [
             'addNote' => function (): SpyCustomerNoteEntityTransfer {
                 $this->fail('A note must never be written without a resolved author.');
             }],
-            $hasUser ? $this->createUserCollection() : new UserCollectionTransfer(),
         );
 
         // Act & Assert
@@ -219,21 +214,19 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
                 ]),
                 $this->tester->getPostOperation(CustomersNotesBackendResource::class),
                 [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-                $this->createContextWithClaims($claims),
+                $this->createContextWithActingUser($actingUser),
             ),
         );
     }
 
     /**
-     * @return array<string, array{array<string, mixed>|null, bool}>
+     * @return array<string, array{mixed}>
      */
-    public function unresolvableIdentityDataProvider(): array
+    public function unresolvableActingUserDataProvider(): array
     {
         return [
-            'no identity claims on the request' => [null, true],
-            'claims without the user id' => [['user_reference' => null], true],
-            'a non-numeric user id' => [[static::CLAIM_ID_USER => 'not-an-id'], true],
-            'a user id that matches no user' => [[static::CLAIM_ID_USER => static::ID_USER], false],
+            'no acting user on the request' => [null],
+            'a value that is not a user transfer' => ['not-a-user'],
         ];
     }
 
@@ -244,7 +237,6 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
         return $this->createProcessorWithFacades(
             ['findCustomerByReference' => (new CustomerResponseTransfer())->setHasCustomer(true)->setCustomerTransfer($customerTransfer)],
             ['addNote' => $this->captureInto($capturedNoteEntityTransfer)],
-            $this->createUserCollection(),
         );
     }
 
@@ -254,8 +246,7 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
      */
     protected function createProcessorWithFacades(
         array $customerFacadeMethods,
-        array $customerNoteFacadeMethods,
-        UserCollectionTransfer $userCollectionTransfer
+        array $customerNoteFacadeMethods
     ): CustomerNotesBackendProcessor {
         $this->tester->setService(
             CustomerFacadeInterface::class,
@@ -264,12 +255,6 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
         $this->tester->setService(
             CustomerNoteFacadeInterface::class,
             $this->tester->createClientStub(CustomerNoteFacadeInterface::class, $customerNoteFacadeMethods),
-        );
-        $this->tester->setService(
-            UserFacadeInterface::class,
-            $this->tester->createClientStub(UserFacadeInterface::class, [
-                'getUserCollection' => $userCollectionTransfer,
-            ]),
         );
 
         return $this->tester->getProcessor(CustomerNotesBackendProcessor::class);
@@ -287,27 +272,23 @@ class CustomerNotesBackendProcessorTest extends BackendApiTestCase
         };
     }
 
-    protected function createUserCollection(): UserCollectionTransfer
+    protected function createActingUser(): UserTransfer
     {
-        return (new UserCollectionTransfer())->addUser(
-            (new UserTransfer())
-                ->setIdUser(static::ID_USER)
-                ->setFirstName(static::USER_FIRST_NAME)
-                ->setLastName(static::USER_LAST_NAME),
-        );
+        return (new UserTransfer())
+            ->setIdUser(static::ID_USER)
+            ->setFirstName(static::USER_FIRST_NAME)
+            ->setLastName(static::USER_LAST_NAME);
     }
 
     /**
-     * @param array<string, mixed>|null $claims
-     *
      * @return array<string, mixed>
      */
-    protected function createContextWithClaims(?array $claims): array
+    protected function createContextWithActingUser(mixed $actingUser): array
     {
         $request = new Request();
 
-        if ($claims !== null) {
-            $request->attributes->set(IdentityRequestSubscriber::ATTRIBUTE_OAUTH_IDENTITY_CLAIMS, $claims);
+        if ($actingUser !== null) {
+            $request->attributes->set(static::ATTRIBUTE_USER_TRANSFER, $actingUser);
         }
 
         return $this->tester->getContext(['request' => $request])->toArray();
