@@ -66,4 +66,26 @@
     <transfer name="AddressResponse" strict="true">
     </transfer>
 
+    <transfer name="Company">
+        <property name="uuid" type="string"/>
+        <property name="name" type="string"/>
+        <property name="status" type="string"/>
+        <property name="isActive" type="bool"/>
+    </transfer>
+
+    <transfer name="CompanyCriteriaFilter">
+        <property name="name" type="string"/>
+        <property name="pagination" type="Pagination"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
+    </transfer>
+
+    <transfer name="CompanyResponse">
+        <property name="companyTransfer" type="Company"/>
+        <property name="isSuccessful" type="bool"/>
+        <property name="messages" type="ResponseMessage[]" singular="message"/>
+    </transfer>
+
+    <transfer name="ResponseMessage">
+    </transfer>
+
 </transfers>

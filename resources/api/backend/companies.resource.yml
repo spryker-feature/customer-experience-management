@@ -1,0 +1,142 @@
+resource:
+    name: Companies
+    shortName: companies
+    description: 'Company management: list, read, create and update companies.'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CompaniesBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CompaniesBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: Get
+          description: 'Retrieve a single company by uuid.'
+          openapiContext:
+              summary: 'Retrieve a company'
+              responses:
+                  200:
+                      description: 'Company returned.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No company matches the uuid (error code 1213).'
+
+        - type: GetCollection
+          description: >-
+              Retrieve a paginated, filterable company collection.
+              Pagination uses the JSON:API item window `page[limit]` (default 10) and
+              `page[offset]` (default 0).
+              Filtering follows the JSON:API `filter[companies.<property>]` form:
+              `filter[companies.name]` matches partially and case-insensitively.
+              Sorting: `sort` accepts name, status or isActive, prefixed with `-` for descending;
+              an unsupported field returns 400. Sorting by status follows the lifecycle order
+              pending, approved, denied rather than alphabetical order. The collection is ordered
+              deterministically, so paging through it never repeats or skips a company; the highest
+              company id leads when no sort is given, which follows creation order.
+          openapiContext:
+              summary: 'List companies'
+              parameters:
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. `status` sorts by the lifecycle order pending, approved, denied rather than alphabetically. Any other field returns 400. Without a sort, the most recently created company leads.'
+                    schema:
+                        type: string
+                        enum: ['name', '-name', 'status', '-status', 'isActive', '-isActive']
+                    example: '-name'
+                  - name: 'filter[companies.name]'
+                    in: query
+                    required: false
+                    description: 'Return only the companies whose name contains this fragment. Matched case-insensitively. A filter addressing any other property returns 400.'
+                    schema:
+                        type: string
+                    example: 'acme'
+              responses:
+                  200:
+                      description: 'Company collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203), a filter addressing a property other than name (error code 1215), or a filter key that is not in `filter[companies.<property>]` form (error code 011).'
+                  401:
+                      description: 'Missing or expired access token.'
+
+        - type: Post
+          description: >-
+              Create a company. `name` is required. `status` and `isActive` may be set explicitly;
+              omitting them creates a pending, inactive company.
+          deserialize: true
+          openapiContext:
+              summary: 'Create a company'
+              responses:
+                  201:
+                      description: 'Company created.'
+                  400:
+                      description: 'The request body could not be read — malformed JSON, or a body that is not a valid JSON:API document.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  422:
+                      description: 'Validation failed, or the company was rejected (error code 1214).'
+
+        - type: Patch
+          description: >-
+              Partially update a company. Only the properties present in the payload are applied,
+              so `name`, `status` and `isActive` can each be changed on their own.
+          deserialize: true
+          extraProperties:
+              read: false
+          openapiContext:
+              summary: 'Update a company'
+              responses:
+                  200:
+                      description: 'Company updated. Only the properties present in the payload are applied.'
+                  400:
+                      description: 'The request body could not be read — malformed JSON, or a body that is not a valid JSON:API document.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No company matches the uuid (error code 1213).'
+                  422:
+                      description: 'Validation failed, or the update was rejected (error code 1214).'
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: true
+            description: 'Public unique company identifier.'
+            openapiContext:
+                example: '0818f408-cc84-575d-ad54-92118a0e4273'
+
+        name:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Company name.'
+            openapiContext:
+                example: 'Acme Corporation'
+
+        status:
+            type: string
+            writable: true
+            readable: true
+            description: >-
+                Approval status of the company. Defaults to pending when omitted on create; an
+                update may set it to approved or denied, but cannot return it to pending.
+            openapiContext:
+                example: 'approved'
+                enum: ['pending', 'approved', 'denied']
+
+        isActive:
+            type: boolean
+            writable: true
+            readable: true
+            description: >-
+                Whether the company is active. Defaults to false when omitted on create; an update
+                may activate or deactivate it. Must be sent as a JSON boolean.
+            openapiContext:
+                example: true

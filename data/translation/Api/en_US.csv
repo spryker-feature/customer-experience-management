@@ -1,0 +1,3 @@
+"This value should be of type bool.","This value should be of type bool."
+"This field must be at least {{ limit }} characters long.","This field must be at least {{ limit }} characters long."
+"Please provide a valid date in YYYY-MM-DD format","Please provide a valid date in YYYY-MM-DD format"

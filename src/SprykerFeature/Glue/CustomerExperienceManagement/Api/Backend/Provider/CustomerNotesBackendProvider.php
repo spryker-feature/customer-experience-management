@@ -21,12 +21,13 @@ use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\Customer
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerNoteReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
+use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
 
 class CustomerNotesBackendProvider extends AbstractBackendProvider
 {
-    protected const string URI_VARIABLE_CUSTOMER_REFERENCE = 'customerReference';
+    use UuidUriVariableAwareTrait;
 
-    protected const string URI_VARIABLE_UUID = 'uuid';
+    protected const string URI_VARIABLE_CUSTOMER_REFERENCE = 'customerReference';
 
     public function __construct(
         protected SerializerServiceInterface $serializer,
@@ -144,11 +145,5 @@ class CustomerNotesBackendProvider extends AbstractBackendProvider
         return $this->customerReader->getCustomerByReference(
             (string)$this->getUriVariable(static::URI_VARIABLE_CUSTOMER_REFERENCE),
         );
-    }
-
-    protected function getUuidUriVariable(): string
-    {
-        return (string)($this->findUriVariable(static::URI_VARIABLE_UUID)
-            ?? $this->getRequest()->attributes->get(static::URI_VARIABLE_UUID));
     }
 }

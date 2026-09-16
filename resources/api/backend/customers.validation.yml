@@ -1,42 +1,34 @@
 post:
     email:
-        - NotBlank:
-              message: 'validation.not_blank'
-        - Email:
-              message: 'validation.email'
+        - NotBlank
+        - Email
         - Length:
               max: 100
-              maxMessage: 'validation.max_length.plural'
 
     salutation:
-        - NotBlank:
-              message: 'validation.not_blank'
+        - NotBlank
         - Choice:
               choices: [Mr, Mrs, Dr, Ms, 'n/a']
-              message: 'validation.choice'
+              message: 'This value is not valid.'
 
     firstName:
-        - NotBlank:
-              message: 'validation.not_blank'
+        - NotBlank
         - Length:
               max: 100
-              maxMessage: 'validation.max_length.plural'
         - Regex:
               pattern: '/^[^:\/<>]+$/'
 
     lastName:
-        - NotBlank:
-              message: 'validation.not_blank'
+        - NotBlank
         - Length:
               max: 100
-              maxMessage: 'validation.max_length.plural'
         - Regex:
               pattern: '/^[^:\/<>]+$/'
 
     gender:
         - Choice:
               choices: [Male, Female]
-              message: 'validation.choice'
+              message: 'This value is not valid.'
 
     dateOfBirth:
         - Date:
@@ -45,63 +37,51 @@ post:
     phone:
         - Length:
               max: 255
-              maxMessage: 'validation.max_length.plural'
 
     company:
         - Length:
               max: 100
-              maxMessage: 'validation.max_length.plural'
 
     localeName:
         - Length:
               max: 15
-              maxMessage: 'validation.max_length.plural'
 
     storeName:
         - Length:
               max: 255
-              maxMessage: 'validation.max_length.plural'
 
 patch:
     email:
         - Optional:
               constraints:
-                  - NotBlank:
-                        message: 'validation.not_blank'
-                  - Email:
-                        message: 'validation.email'
+                  - NotBlank
+                  - Email
                   - Length:
                         max: 100
-                        maxMessage: 'validation.max_length.plural'
 
     salutation:
         - Optional:
               constraints:
-                  - NotBlank:
-                        message: 'validation.not_blank'
+                  - NotBlank
                   - Choice:
                         choices: [Mr, Mrs, Dr, Ms, 'n/a']
-                        message: 'validation.choice'
+                        message: 'This value is not valid.'
 
     firstName:
         - Optional:
               constraints:
-                  - NotBlank:
-                        message: 'validation.not_blank'
+                  - NotBlank
                   - Length:
                         max: 100
-                        maxMessage: 'validation.max_length.plural'
                   - Regex:
                         pattern: '/^[^:\/<>]+$/'
 
     lastName:
         - Optional:
               constraints:
-                  - NotBlank:
-                        message: 'validation.not_blank'
+                  - NotBlank
                   - Length:
                         max: 100
-                        maxMessage: 'validation.max_length.plural'
                   - Regex:
                         pattern: '/^[^:\/<>]+$/'
 
@@ -110,7 +90,7 @@ patch:
               constraints:
                   - Choice:
                         choices: [Male, Female]
-                        message: 'validation.choice'
+                        message: 'This value is not valid.'
 
     dateOfBirth:
         - Optional:
@@ -123,25 +103,21 @@ patch:
               constraints:
                   - Length:
                         max: 255
-                        maxMessage: 'validation.max_length.plural'
 
     company:
         - Optional:
               constraints:
                   - Length:
                         max: 100
-                        maxMessage: 'validation.max_length.plural'
 
     localeName:
         - Optional:
               constraints:
                   - Length:
                         max: 15
-                        maxMessage: 'validation.max_length.plural'
 
     storeName:
         - Optional:
               constraints:
                   - Length:
                         max: 255
-                        maxMessage: 'validation.max_length.plural'

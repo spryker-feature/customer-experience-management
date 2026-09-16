@@ -18,12 +18,13 @@ use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Exception\CustomerAddressesBackendExceptionFactory;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CustomerAddressResourceMapperInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerAddressReaderInterface;
+use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
 
 class CustomerAddressesBackendProcessor extends AbstractBackendProcessor
 {
-    protected const string URI_VARIABLE_CUSTOMER_REFERENCE = 'customerReference';
+    use UuidUriVariableAwareTrait;
 
-    protected const string URI_VARIABLE_UUID = 'uuid';
+    protected const string URI_VARIABLE_CUSTOMER_REFERENCE = 'customerReference';
 
     public function __construct(
         protected CustomerFacadeInterface $customerFacade,
@@ -144,11 +145,5 @@ class CustomerAddressesBackendProcessor extends AbstractBackendProcessor
     protected function getCustomerReferenceUriVariable(): string
     {
         return (string)$this->getUriVariable(static::URI_VARIABLE_CUSTOMER_REFERENCE);
-    }
-
-    protected function getUuidUriVariable(): string
-    {
-        return (string)($this->findUriVariable(static::URI_VARIABLE_UUID)
-            ?? $this->getRequest()->attributes->get(static::URI_VARIABLE_UUID));
     }
 }

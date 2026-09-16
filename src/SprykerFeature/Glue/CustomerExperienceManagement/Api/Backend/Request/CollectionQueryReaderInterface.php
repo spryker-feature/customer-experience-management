@@ -21,4 +21,12 @@ interface CollectionQueryReaderInterface
   * @return array<int, \Generated\Shared\Transfer\SortTransfer>
   */
     public function getSortCollection(Request $request, array $sortableFields): array;
+
+    /**
+     * Filters are addressed as `filter[<resourceName>.<property>]` by the JSON:API convention,
+     * so the resource prefix is stripped and the property name is returned as the key.
+     *
+     * @return array<string, mixed>
+     */
+    public function getFilters(Request $request, string $filterKeyPrefix): array;
 }

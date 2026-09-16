@@ -67,6 +67,12 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
 
     public const string RESPONSE_CODE_REGION_NOT_IN_COUNTRY = '1212';
 
+    public const string RESPONSE_CODE_COMPANY_NOT_FOUND = '1213';
+
+    public const string RESPONSE_CODE_COMPANY_VALIDATION = '1214';
+
+    public const string RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD = '1215';
+
     public const string RESPONSE_DETAILS_CUSTOMER_NOT_FOUND = 'Customer with reference "%s" was not found.';
 
     public const string RESPONSE_DETAILS_INVALID_SORT_FIELD = 'Sort field "%s" is not supported. Supported fields: %s.';
@@ -84,6 +90,14 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
     public const string RESPONSE_DETAILS_UNKNOWN_STORE = 'Store "%s" does not exist. Available stores: %s.';
 
     public const string RESPONSE_DETAILS_UNKNOWN_LOCALE = 'Locale "%s" does not exist.';
+
+    public const string RESPONSE_DETAILS_COMPANY_NOT_FOUND = 'Company with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_VALIDATION = 'The company request could not be processed.';
+
+    public const string RESPONSE_DETAILS_UNSUPPORTED_FILTER_FIELD = 'Filter field "%s" is not supported. Supported fields: %s.';
+
+    public const string RESPONSE_DETAILS_NON_SCALAR_FILTER_VALUE = 'Filter field "%s" expects a single value.';
 
     /**
      * Specification:

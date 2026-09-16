@@ -1,0 +1,36 @@
+post:
+    name:
+        - NotBlank
+        - Length:
+              max: 100
+
+    status:
+        - Choice:
+              choices: [pending, approved, denied]
+              message: 'This value is not valid.'
+
+    isActive:
+        - Spryker\ApiPlatform\Validation\Constraint\StrictBoolean:
+              message: 'This value should be of type bool.'
+
+patch:
+    name:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 100
+
+    status:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Choice:
+                        choices: [approved, denied]
+                        message: 'This value is not valid.'
+
+    isActive:
+        - Optional:
+              constraints:
+                  - Spryker\ApiPlatform\Validation\Constraint\StrictBoolean:
+                        message: 'This value should be of type bool.'

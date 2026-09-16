@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CollectionQueryReader implements CollectionQueryReaderInterface
 {
+    protected const string QUERY_PARAM_FILTER = 'filter';
+
     protected const string QUERY_PARAM_SORT = 'sort';
 
     protected const string SORT_DESCENDING_PREFIX = '-';
@@ -65,5 +67,25 @@ class CollectionQueryReader implements CollectionQueryReaderInterface
         }
 
         return $sortTransfers;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return array<string, mixed>
+     */
+    public function getFilters(Request $request, string $filterKeyPrefix): array
+    {
+        $filters = [];
+
+        foreach ($request->query->all(static::QUERY_PARAM_FILTER) as $key => $value) {
+            $property = str_starts_with($key, $filterKeyPrefix)
+                ? substr($key, strlen($filterKeyPrefix))
+                : $key;
+
+            $filters[$property] = $value;
+        }
+
+        return $filters;
     }
 }
