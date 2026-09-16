@@ -1,0 +1,117 @@
+post:
+    companyUuid:
+        - NotBlank
+        - Uuid
+
+    companyBusinessUnitUuid:
+        - NotBlank
+        - Uuid
+
+    companyRoleUuids:
+        - NotBlank
+        - Count:
+              min: 1
+        - All:
+              constraints:
+                  - Uuid
+
+    customerReference:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+
+    customer:
+        - When:
+              expression: 'this.customerReference == null'
+              constraints:
+                  - NotNull
+        - Optional:
+              constraints:
+                  - Collection:
+                        allowExtraFields: true
+                        allowMissingFields: true
+                        fields:
+                            email:
+                                - Expression:
+                                      expression: 'context.getRoot().customerReference != null or value != null'
+                                      message: 'Customer email is required when customerReference is not sent.'
+                                - Optional:
+                                      constraints:
+                                          - NotBlank
+                                          - Email
+                                          - Length:
+                                                max: 100
+
+                            salutation:
+                                - Expression:
+                                      expression: 'context.getRoot().customerReference != null or value != null'
+                                      message: 'Customer salutation is required when customerReference is not sent.'
+                                - Optional:
+                                      constraints:
+                                          - Choice:
+                                                choices: ['Mr', 'Mrs', 'Dr', 'Ms', 'n/a']
+
+                            firstName:
+                                - Expression:
+                                      expression: 'context.getRoot().customerReference != null or value != null'
+                                      message: 'Customer first name is required when customerReference is not sent.'
+                                - Optional:
+                                      constraints:
+                                          - NotBlank
+                                          - Length:
+                                                max: 100
+                                          - Regex:
+                                                pattern: '/^[^:\/<>]+$/'
+
+                            lastName:
+                                - Expression:
+                                      expression: 'context.getRoot().customerReference != null or value != null'
+                                      message: 'Customer last name is required when customerReference is not sent.'
+                                - Optional:
+                                      constraints:
+                                          - NotBlank
+                                          - Length:
+                                                max: 100
+                                          - Regex:
+                                                pattern: '/^[^:\/<>]+$/'
+
+                            gender:
+                                - Optional:
+                                      constraints:
+                                          - Choice:
+                                                choices: ['Male', 'Female']
+
+                            dateOfBirth:
+                                - Optional:
+                                      constraints:
+                                          - Date
+
+                            phone:
+                                - Optional:
+                                      constraints:
+                                          - Length:
+                                                max: 255
+
+patch:
+    companyUuid:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Uuid
+
+    companyBusinessUnitUuid:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Uuid
+
+    companyRoleUuids:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Count:
+                        min: 1
+                  - All:
+                        constraints:
+                            - Uuid

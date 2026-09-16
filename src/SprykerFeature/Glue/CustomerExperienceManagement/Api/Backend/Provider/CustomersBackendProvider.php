@@ -43,8 +43,6 @@ class CustomersBackendProvider extends AbstractBackendProvider
 
     protected const string FILTER_LAST_NAME = 'lastName';
 
-    protected const string FILTER_INCLUDE_ANONYMIZED = 'includeAnonymized';
-
     public function __construct(
         protected CustomerFacadeInterface $customerFacade,
         protected SerializerServiceInterface $serializer,
@@ -143,10 +141,6 @@ class CustomersBackendProvider extends AbstractBackendProvider
 
         if (!empty($filters[static::FILTER_EMAIL])) {
             $customerConditionsTransfer->addEmail((string)$filters[static::FILTER_EMAIL]);
-        }
-
-        if (!empty($filters[static::FILTER_INCLUDE_ANONYMIZED])) {
-            $customerConditionsTransfer->setHasAnonymizedAt(true);
         }
 
         $customerCriteriaSearchTermsTransfer = $this->buildSearchTerms($filters);

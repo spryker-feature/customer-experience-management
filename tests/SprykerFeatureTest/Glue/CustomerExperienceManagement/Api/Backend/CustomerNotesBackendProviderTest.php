@@ -357,12 +357,13 @@ class CustomerNotesBackendProviderTest extends BackendApiTestCase
             [$this->createCustomerNoteEntityTransfer($customerTransfer->getIdCustomerOrFail())],
             $capturedCriteria,
         ));
+        $request = new Request(['sort' => 'email', 'page' => '3']);
 
         // Act
         $resources = $provider->provide(
             new GetCollection(class: CustomersNotesBackendResource::class),
             [CustomerTransfer::CUSTOMER_REFERENCE => $customerTransfer->getCustomerReferenceOrFail()],
-            $this->createContextWithQuery(['sort' => 'email', 'page' => '3']),
+            $this->tester->getContext(['request' => $request])->toArray(),
         );
 
         // Assert
@@ -376,6 +377,10 @@ class CustomerNotesBackendProviderTest extends BackendApiTestCase
             1,
             $capturedCriteria->getPaginationOrFail()->getPage(),
             "The parent's page must not be applied to the included notes.",
+        );
+        $this->assertNull(
+            $request->attributes->get(PaginationLinksTransform::REQUEST_ATTRIBUTE_PAGINATION),
+            'Collection metadata belongs to the notes endpoint, not to an included relationship.',
         );
     }
 

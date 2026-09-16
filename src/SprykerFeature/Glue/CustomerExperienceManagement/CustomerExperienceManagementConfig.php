@@ -73,7 +73,33 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
 
     public const string RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD = '1215';
 
+    public const string RESPONSE_CODE_COMPANY_USER_NOT_FOUND = '1216';
+
+    public const string RESPONSE_CODE_COMPANY_BUSINESS_UNIT_NOT_FOUND = '1217';
+
+    public const string RESPONSE_CODE_COMPANY_ROLE_NOT_FOUND = '1218';
+
+    public const string RESPONSE_CODE_COMPANY_USER_STATUS_INVALID = '1219';
+
+    public const string RESPONSE_CODE_COMPANY_USER_CUSTOMER_MISSING = '1220';
+
+    public const string RESPONSE_CODE_COMPANY_USER_DEFAULT_INVALID = '1221';
+
     public const string RESPONSE_DETAILS_CUSTOMER_NOT_FOUND = 'Customer with reference "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_USER_NOT_FOUND = 'Company user with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_BUSINESS_UNIT_NOT_FOUND = 'Company business unit with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_ROLE_NOT_FOUND = 'Company role with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_USER_STATUS_INVALID = 'The request body must contain an "isActive" boolean.';
+
+    public const string RESPONSE_DETAILS_COMPANY_USER_DEFAULT_INVALID = 'The request body must contain an "isDefault" boolean.';
+
+    public const string RESPONSE_DETAILS_COMPANY_USER_VALIDATION = 'The company user request could not be processed.';
+
+    public const string RESPONSE_DETAILS_COMPANY_USER_CUSTOMER_MISSING = 'No customer was given. Send "customerReference" to use an existing customer, or a "customer" object with at least an email address to create one.';
 
     public const string RESPONSE_DETAILS_INVALID_SORT_FIELD = 'Sort field "%s" is not supported. Supported fields: %s.';
 

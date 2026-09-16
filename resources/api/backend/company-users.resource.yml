@@ -1,0 +1,550 @@
+resource:
+    name: CompanyUsers
+    shortName: company-users
+    description: >-
+        A company user links a customer to one business unit of one company, and carries the roles
+        that say what they may do there. A customer can have several company users — one per
+        company and business unit combination — and one of them can be marked as their default.
+        This resource lists, creates, updates, activates, deactivates and deletes company users.
+        It does not manage customers themselves; use the customers resource for that.
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CompanyUsersBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CompanyUsersBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: GetCollection
+          description: >-
+              List company users across all companies.
+              Pagination (JSON:API): `page[limit]` (default 10), `page[offset]` (default 0); the
+              pagination summary is returned as top-level `meta.pagination` with `links.first/last/prev/next`.
+              Free-text search: `q`, matched against the customer's first and last name.
+              Filters use the JSON:API `filter[company-users.<property>]` form and are combined
+              with AND:
+              `filter[company-users.customerReference]` — company users of one customer;
+              `filter[company-users.companyUuid]` — company users of one company;
+              `filter[company-users.companyBusinessUnitUuid]` — company users of one business unit;
+              `filter[company-users.isActive]` — only active or only inactive company users.
+              Sorting: `sort` accepts companyName, customerEmail, customerFirstName or
+              customerLastName, prefixed with `-` for descending; an unsupported field
+              returns 400.
+              Company users whose customer has been anonymized are always excluded from the result.
+          openapiContext:
+              summary: 'List company users'
+              parameters:
+                  - name: 'q'
+                    in: query
+                    required: false
+                    description: "Free-text search, matched against the customer's first and last name."
+                    schema:
+                        type: string
+                    example: 'spencor'
+                  - name: 'filter[company-users.customerReference]'
+                    in: query
+                    required: false
+                    description: 'Return only the company users of the customer with this reference (exact match).'
+                    schema:
+                        type: string
+                    example: 'DE--1'
+                  - name: 'filter[company-users.companyUuid]'
+                    in: query
+                    required: false
+                    description: 'Return only the company users of this company. An unknown uuid yields an empty collection.'
+                    schema:
+                        type: string
+                    example: '3f2a1c9e-5d84-5b21-9f60-8a1c7d4e2b03'
+                  - name: 'filter[company-users.companyBusinessUnitUuid]'
+                    in: query
+                    required: false
+                    description: 'Return only the company users of this business unit. An unknown uuid yields an empty collection.'
+                    schema:
+                        type: string
+                    example: '9c81b4f0-2e73-5a18-bc45-6d90e3f7a218'
+                  - name: 'filter[company-users.isActive]'
+                    in: query
+                    required: false
+                    description: 'Return only active or only inactive company users.'
+                    schema:
+                        type: boolean
+                    example: true
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Any other field returns 400.'
+                    schema:
+                        type: string
+                        enum:
+                            [
+                                'companyName',
+                                '-companyName',
+                                'customerEmail',
+                                '-customerEmail',
+                                'customerFirstName',
+                                '-customerFirstName',
+                                'customerLastName',
+                                '-customerLastName',
+                            ]
+                    example: '-customerLastName'
+              responses:
+                  200:
+                      description: 'Company user collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+
+        - type: Get
+          description: >-
+              Retrieve one company user. Inactive company users, and company users of companies
+              that are themselves inactive or not yet approved, are returned too — so an operator
+              can inspect one before re-activating it. A company user whose customer has been
+              anonymized is not returned, matching the collection.
+          openapiContext:
+              summary: 'Retrieve a company user'
+              responses:
+                  200:
+                      description: 'Company user returned.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company user matches the uuid.'
+
+        - type: Post
+          description: >-
+              Create a company user for the given company and business unit.
+              For an existing customer, send `customerReference` and nothing else about them — no
+              name, no email, none of their data is read back or changed, and no mail is sent.
+              To create the customer at the same time, omit `customerReference` and send a
+              `customer` object instead: `email`, `firstName`, `lastName` and `salutation` are
+              required on that path. The new customer receives the usual registration mail, and a
+              password-reset mail as well if you set `sendPasswordToken`. No password is ever
+              accepted here.
+              `customerReference` is the only place an existing customer is named; when it is sent
+              the `customer` object is ignored entirely. If neither is sent the request is rejected.
+              Either way the company, business unit and roles are checked against each other before
+              anything is saved: the company must exist, the business unit must belong to that
+              company, and every role must belong to that company. A customer can have only one
+              company user per business unit. If any of that fails the whole request is rejected
+              and nothing is written — including the new customer account.
+              A customer can have several company users, one per company and business unit
+              combination. Calling this again for the same customer with a different business unit
+              creates a second, independent company user; the existing ones are not read or
+              changed. Use `PATCH` instead to point an existing company user at a different
+              business unit.
+              The new company user is created active (`isActive` is true) and not default
+              (`isDefault` is false) — always, including when the customer has no other company
+              user. No company user is set as default automatically; use `/set-default` for that.
+          deserialize: true
+          openapiContext:
+              summary: 'Create a company user'
+              responses:
+                  201:
+                      description: 'Company user created. If a new customer account was created, the registration mail has been sent.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  422:
+                      description: >-
+                          The request was rejected and nothing was saved. Either a field failed
+                          validation, or a referenced company, business unit, role or customer does
+                          not exist, or the business unit or a role does not belong to the given
+                          company, or the customer already has a company user in that business
+                          unit, or the new customer account could not be created — most often
+                          because the email address is already taken.
+
+        - type: Patch
+          description: >-
+              Update the company user addressed by the uuid. Only the properties you send are
+              applied; anything you leave out stays as it is.
+              This changes that one company user and nothing else: the customer's other company
+              users are not read or modified, and no customer data is written. Anything sent inside
+              `customer` is ignored here — customer details are managed through the customers
+              resource.
+              You can point the company user at a different company or business unit, and you can
+              replace its roles — the list you send becomes the complete new set, so include every
+              role it should keep. The same checks as on create apply: the business unit and every
+              role must belong to the company the company user now points at, and the customer must
+              not already have another company user in the target business unit.
+              Moving a company user to a different business unit does not create a second one; to
+              give the customer an additional company user, use `POST`.
+              The active and default statuses are not changed here; they are changed using the
+              `/set-status` and `/set-default` operations.
+          deserialize: true
+          extraProperties:
+              read: false
+          openapiContext:
+              summary: 'Update a company user'
+              responses:
+                  200:
+                      description: 'Company user updated.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company user matches the uuid.'
+                  422:
+                      description: >-
+                          The request was rejected and nothing was saved — a field failed
+                          validation, a referenced company, business unit or role does not exist,
+                          the business unit or a role does not belong to the given company, or the
+                          customer would end up with two company users in the same business unit.
+
+        - type: Delete
+          description: >-
+              Delete the company user. Anything it owns inside the company — shopping lists, shared
+              carts, quote requests, merchant relation requests — is cleaned up first, and then the
+              company user itself is removed.
+              The customer is kept. They lose this company user, but their account, their data and
+              their other company users are untouched, and they can be given a new company user
+              afterwards.
+              To revoke access without deleting anything, deactivate the company user via
+              `/set-status` instead.
+          openapiContext:
+              summary: 'Delete a company user'
+              responses:
+                  204:
+                      description: 'Company user deleted. The customer is kept.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company user matches the uuid.'
+                  422:
+                      description: 'The company user could not be deleted.'
+
+        - type: Post
+          name: setCompanyUserStatus
+          description: >-
+              Activate or deactivate the company user. Send `isActive` as `true` to activate it and
+              `false` to deactivate it, inside the usual JSON:API document.
+              A deactivated company user is kept in full — the customer, the roles and the business
+              unit are untouched — but it can no longer be used to act on behalf of the company in
+              the storefront, and the company stops appearing in that customer's company switcher.
+              Activating again restores it exactly as it was. The customer's other company users
+              are not affected.
+              Sending the status a company user already has succeeds and changes nothing.
+          uriTemplate: '/company-users/{uuid}/set-status'
+          status: 200
+          uriVariables:
+              uuid:
+                  identifiers: [uuid]
+          deserialize: false
+          read: false
+          openapiContext:
+              summary: 'Activate or deactivate a company user'
+              requestBody:
+                  required: true
+                  content:
+                      application/vnd.api+json:
+                          schema:
+                              type: object
+                              required: ['data']
+                              properties:
+                                  data:
+                                      type: object
+                                      required: ['type', 'attributes']
+                                      properties:
+                                          type:
+                                              type: string
+                                              example: 'company-users'
+                                          attributes:
+                                              type: object
+                                              required: ['isActive']
+                                              properties:
+                                                  isActive:
+                                                      type: boolean
+                                                      description: 'true activates the company user, false deactivates it.'
+                          example:
+                              data:
+                                  type: 'company-users'
+                                  attributes:
+                                      isActive: false
+              responses:
+                  200:
+                      description: 'Company user activated or deactivated; the updated company user is returned.'
+                  400:
+                      description: 'Request body is missing, unparseable, or `isActive` is absent or not a boolean.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company user matches the uuid.'
+                  422:
+                      description: 'The company user status could not be changed.'
+
+        - type: Post
+          name: setDefaultCompanyUser
+          description: >-
+              Set or unset this company user as its customer's default. Send `isDefault` as `true`
+              to set it and `false` to unset it, inside the usual JSON:API document — the same shape
+              `/set-status` takes.
+              The default is the company user its customer lands in when they log in, before they
+              switch manually. A customer has at most one, so setting one unsets whichever was the
+              default before, in the same request.
+              Unsetting leaves the customer with no default at all; no other company user takes its
+              place, and this one is otherwise untouched. Unsetting a company user that is not the
+              default succeeds and changes nothing — it never unsets another company user's default.
+              Sending the state a company user already has succeeds and changes nothing.
+          uriTemplate: '/company-users/{uuid}/set-default'
+          status: 200
+          uriVariables:
+              uuid:
+                  identifiers: [uuid]
+          deserialize: false
+          read: false
+          openapiContext:
+              summary: 'Set or unset a company user as its customer default'
+              requestBody:
+                  required: true
+                  content:
+                      application/vnd.api+json:
+                          schema:
+                              type: object
+                              required: ['data']
+                              properties:
+                                  data:
+                                      type: object
+                                      required: ['type', 'attributes']
+                                      properties:
+                                          type:
+                                              type: string
+                                              example: 'company-users'
+                                          attributes:
+                                              type: object
+                                              required: ['isDefault']
+                                              properties:
+                                                  isDefault:
+                                                      type: boolean
+                                                      description: 'true sets this company user as its customer default, false unsets it.'
+                          example:
+                              data:
+                                  type: 'company-users'
+                                  attributes:
+                                      isDefault: true
+              responses:
+                  200:
+                      description: 'Default set or unset; the updated company user is returned.'
+                  400:
+                      description: 'Request body is missing, unparseable, or `isDefault` is absent or not a boolean.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company user matches the uuid.'
+                  422:
+                      description: 'The company user default could not be changed.'
+
+    includes:
+        - relationshipName: customers
+          targetResource: Customers
+          uriVariableMappings:
+              customerReference: customerReference
+
+        - relationshipName: companies
+          targetResource: Companies
+          uriVariableMappings:
+              uuid: companyUuid
+
+        - relationshipName: company-business-units
+          targetResource: CompanyBusinessUnits
+          uriVariableMappings:
+              uuid: companyBusinessUnitUuid
+
+        - relationshipName: company-roles
+          targetResource: CompanyRoles
+          resolverClass: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Relationship\CompanyRolesRelationshipResolver
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: true
+            description: 'Public identifier of the company user, used to address it in every operation. Assigned on creation and stable for its lifetime.'
+            openapiContext:
+                example: 'f9c64276-a8b9-57f1-8fb3-a19c045dc85e'
+
+        customerReference:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: >-
+                Reference of the customer this company user belongs to. Send it on create to use an
+                existing customer — nothing else about that customer is needed, and none of their
+                data is read back or changed. Ignored on update: a company user cannot be moved to
+                a different customer.
+            openapiContext:
+                example: 'DE--1'
+
+        companyUuid:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'The company this company user belongs to. Changing it moves the company user to another company, in which case the business unit and roles sent in the same request must belong to the new company.'
+            openapiContext:
+                example: '3f2a1c9e-5d84-5b21-9f60-8a1c7d4e2b03'
+
+        companyBusinessUnitUuid:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'The business unit inside the company this company user belongs to — typically a department, site or subsidiary. It must belong to the company above, and a customer can have only one company user per business unit.'
+            openapiContext:
+                example: '9c81b4f0-2e73-5a18-bc45-6d90e3f7a218'
+
+        companyRoleUuids:
+            type: array
+            writable: true
+            readable: true
+            required: true
+            description: >-
+                What this company user may do in the company — for example approve orders or manage
+                other company users. At least one role is required, and every role must belong to
+                the company above. When updating, the list you send replaces the current one
+                entirely, so include every role it should keep.
+            openapiContext:
+                items:
+                    type: string
+                example: ['aa10f3c5-7b62-5e49-8d31-04f5c9b28e77']
+
+        isActive:
+            type: boolean
+            writable: false
+            readable: true
+            required: false
+            description: >-
+                Whether this company user can currently be used to act on behalf of the company.
+                Always true on creation; `PATCH` never changes it. Read-only — use the `/set-status`
+                operation.
+            openapiContext:
+                example: true
+
+        isDefault:
+            type: boolean
+            writable: false
+            readable: true
+            required: false
+            description: >-
+                Whether this is the company user its customer lands in when they log in. Always
+                false on creation — including for the customer's very first company user, since
+                no company user is set as default automatically — and `PATCH` never changes it. A
+                customer has at most one default. Read-only — use the `/set-default` operation.
+            openapiContext:
+                example: false
+
+        customer:
+            type: object
+            objectName: CompanyUserCustomer
+            writable: true
+            readable: true
+            required: false
+            nullable: true
+            description: >-
+                Describes a customer to create along with the company user. Only needed when there
+                is no existing customer to point at — for an existing one send `customerReference`
+                instead and omit this object entirely.
+                On create: used only when `customerReference` is absent; `email`, `firstName`,
+                `lastName` and `salutation` are required then.
+                On update: ignored — no customer data is written through this resource; use the
+                customers resource instead.
+                On read: identification only. The full customer record is served by the customers
+                resource.
+            properties:
+                email:
+                    type: string
+                    writable: true
+                    readable: true
+                    required: false
+                    description: 'Email address, which is also the storefront login name. Required when a new customer account is being created, and must not already be in use.'
+                    openapiContext:
+                        example: 'spencor.hopkin@acme.com'
+
+                salutation:
+                    type: string
+                    writable: true
+                    readable: true
+                    required: false
+                    nullable: true
+                    description: 'How the customer is addressed. Only used when a new customer account is being created.'
+                    openapiContext:
+                        example: 'Mr'
+                        enum: ['Mr', 'Mrs', 'Dr', 'Ms', 'n/a']
+
+                firstName:
+                    type: string
+                    writable: true
+                    readable: true
+                    required: false
+                    description: 'Given name. Required when a new customer account is being created.'
+                    openapiContext:
+                        example: 'Spencor'
+
+                lastName:
+                    type: string
+                    writable: true
+                    readable: true
+                    required: false
+                    description: 'Family name. Required when a new customer account is being created.'
+                    openapiContext:
+                        example: 'Hopkin'
+
+                gender:
+                    type: string
+                    writable: true
+                    readable: true
+                    required: false
+                    nullable: true
+                    description: 'Only used when a new customer account is being created.'
+                    openapiContext:
+                        example: 'Male'
+                        enum: ['Male', 'Female']
+
+                dateOfBirth:
+                    type: string
+                    writable: true
+                    readable: true
+                    required: false
+                    nullable: true
+                    description: 'Date of birth in YYYY-MM-DD format. Only used when a new customer account is being created.'
+                    openapiContext:
+                        example: '1990-01-15'
+
+                phone:
+                    type: string
+                    writable: true
+                    readable: true
+                    required: false
+                    nullable: true
+                    description: 'Only used when a new customer account is being created.'
+                    openapiContext:
+                        example: '+49123456789'
+
+                sendPasswordToken:
+                    type: boolean
+                    writable: true
+                    readable: false
+                    required: false
+                    description: 'Send the customer a mail letting them choose their own password. This is the only way this resource gives someone a password — passwords are never accepted in the request. Only has an effect when a new customer account is being created.'
+                    openapiContext:
+                        example: true

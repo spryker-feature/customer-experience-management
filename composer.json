@@ -5,7 +5,11 @@
     "license": "proprietary",
     "require": {
         "php": ">=8.3",
-        "spryker/company": "^1.10.0",
+        "spryker/business-on-behalf": "^1.0.0",
+        "spryker/company": "^1.11.0",
+        "spryker/company-business-unit": "^2.22.0",
+        "spryker/company-role": "^1.14.0",
+        "spryker/company-user": "^2.24.0",
         "spryker/customer": "^7.85.0",
         "spryker/customer-note": "^1.3.0",
         "spryker/kernel": "^3.30.0",
@@ -21,7 +25,7 @@
         "spryker/testify": "*"
     },
     "suggest": {
-        "spryker/api-platform": "Required to expose the customers Backend API resource; without it the resource schema is never discovered."
+        "spryker/api-platform": "Required to expose the customers and company-users Backend API resources; without it the resource schemas are never discovered."
     },
     "autoload": {
         "psr-4": {

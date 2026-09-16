@@ -40,6 +40,8 @@
     </transfer>
 
     <transfer name="RestErrorMessage">
+        <property name="status" type="int" description="A HTTP status code."/>
+        <property name="detail" type="string" description="A detailed error message providing more specific information about an issue."/>
     </transfer>
 
     <transfer name="CustomerNoteCollection">
@@ -66,7 +68,68 @@
     <transfer name="AddressResponse" strict="true">
     </transfer>
 
+    <transfer name="CompanyUser">
+        <property name="idCompanyUser" type="int"/>
+        <property name="uuid" type="string"/>
+        <property name="isActive" type="bool"/>
+        <property name="isDefault" type="bool"/>
+        <property name="fkCustomer" type="int"/>
+        <property name="customer" type="Customer"/>
+        <property name="fkCompany" type="int"/>
+        <property name="company" type="Company"/>
+        <property name="fkCompanyBusinessUnit" type="int"/>
+        <property name="companyBusinessUnit" type="CompanyBusinessUnit"/>
+        <property name="companyRoleCollection" type="CompanyRoleCollection"/>
+    </transfer>
+
+    <transfer name="CompanyUserCriteriaFilter">
+        <property name="idCompany" type="int"/>
+        <property name="filter" type="Filter"/>
+        <property name="pagination" type="Pagination"/>
+        <property name="isActive" type="bool"/>
+        <property name="includeAnonymizedCustomers" type="bool" strict="true"/>
+        <property name="customerName" type="string" strict="true"/>
+        <property name="uuid" type="string" strict="true"/>
+        <property name="idCompanyBusinessUnit" type="int" strict="true"/>
+        <property name="customerReferences" type="string[]" singular="customerReference" strict="true"/>
+        <property name="sortCollection" type="Sort[]" singular="sort" strict="true"/>
+    </transfer>
+
+    <transfer name="Filter">
+        <property name="orderBy" type="string"/>
+        <property name="orderDirection" type="string"/>
+    </transfer>
+
+    <transfer name="CompanyUserResponse">
+        <property name="isSuccessful" type="bool"/>
+        <property name="companyUser" type="CompanyUser"/>
+        <property name="messages" type="ResponseMessage[]" singular="message"/>
+    </transfer>
+
+    <transfer name="ResponseMessage">
+        <property name="text" type="string"/>
+    </transfer>
+
+    <transfer name="CompanyBusinessUnit">
+        <property name="idCompanyBusinessUnit" type="int"/>
+        <property name="uuid" type="string"/>
+    </transfer>
+
+    <transfer name="CompanyRoleCollection">
+        <property name="roles" type="CompanyRole[]" singular="role"/>
+    </transfer>
+
+    <transfer name="CompanyRole">
+        <property name="uuid" type="string"/>
+    </transfer>
+
+    <transfer name="CompanyUserCollection">
+        <property name="companyUsers" type="CompanyUser[]" singular="companyUser"/>
+        <property name="pagination" type="Pagination"/>
+    </transfer>
+
     <transfer name="Company">
+        <property name="idCompany" type="int"/>
         <property name="uuid" type="string"/>
         <property name="name" type="string"/>
         <property name="status" type="string"/>
@@ -83,9 +146,6 @@
         <property name="companyTransfer" type="Company"/>
         <property name="isSuccessful" type="bool"/>
         <property name="messages" type="ResponseMessage[]" singular="message"/>
-    </transfer>
-
-    <transfer name="ResponseMessage">
     </transfer>
 
 </transfers>

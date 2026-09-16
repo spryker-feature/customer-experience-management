@@ -352,6 +352,12 @@ class CustomerAddressesBackendProviderTest extends BackendApiTestCase
             'getAddressCollection' => $addressCollectionTransfer,
         ]);
 
+        // The request window is what the reported metadata describes: two per page over seven
+        // results is four pages.
+        $context = $this->tester->getContext([
+            'request' => new Request(['page' => ['limit' => '2']]),
+        ])->toArray();
+
         // Act
         $resources = $provider->provide(
             $this->createGetCollectionOperation(),

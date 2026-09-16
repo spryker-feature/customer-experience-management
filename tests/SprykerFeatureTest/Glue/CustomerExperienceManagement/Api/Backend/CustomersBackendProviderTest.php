@@ -172,16 +172,16 @@ class CustomersBackendProviderTest extends BackendApiTestCase
                     $this->assertNull($searchTerms->getEmail());
                 },
             ],
-            'anonymized customers are excluded unless requested' => [
+            'anonymized customers are excluded' => [
                 [],
                 function (CustomerCollectionCriteriaTransfer $criteria): void {
                     $this->assertNull($criteria->getCustomerConditionsOrFail()->getHasAnonymizedAt());
                 },
             ],
-            'anonymized customers included on request' => [
+            'anonymized customers stay excluded even when an includeAnonymized filter is sent' => [
                 ['filter' => ['customers.includeAnonymized' => '1']],
                 function (CustomerCollectionCriteriaTransfer $criteria): void {
-                    $this->assertTrue($criteria->getCustomerConditionsOrFail()->getHasAnonymizedAt());
+                    $this->assertNull($criteria->getCustomerConditionsOrFail()->getHasAnonymizedAt());
                 },
             ],
         ];

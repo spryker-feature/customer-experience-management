@@ -51,13 +51,6 @@ resource:
                     schema:
                         type: string
                     example: 'Wag'
-                  - name: 'filter[customers.includeAnonymized]'
-                    in: query
-                    required: false
-                    description: 'Include anonymized customers in the result. By default only active customers are returned.'
-                    schema:
-                        type: boolean
-                    example: true
                   - name: 'sort'
                     in: query
                     required: false
@@ -87,6 +80,8 @@ resource:
                       description: 'Unsupported sort field (error code 1203).'
                   401:
                       description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
           description: >-
               Retrieve a paginated, filterable customer collection.
               Pagination (JSON:API): `page[limit]` (default 10), `page[offset]` (default 0); the
@@ -94,9 +89,8 @@ resource:
               Free-text search: `q`, OR-matched against email, first name and last name.
               Filters follow the JSON:API `filter[customers.<property>]` form:
               `filter[customers.email]` (exact), `filter[customers.customerReference]` (exact),
-              `filter[customers.firstName]` and `filter[customers.lastName]` (partial),
-              `filter[customers.includeAnonymized]` (boolean, brings anonymized customers into the
-              result; the default result is the active customers).
+              `filter[customers.firstName]` and `filter[customers.lastName]` (partial).
+              Anonymized customers are always excluded from the result.
               Sorting: `sort` accepts customerReference, createdAt, email, firstName, lastName or
               registered, prefixed with `-` for descending; an unsupported field returns 400.
 
@@ -109,6 +103,8 @@ resource:
                       description: 'Customer returned.'
                   401:
                       description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
                   404:
                       description: 'No customer matches the reference (error code 1201).'
 
@@ -122,6 +118,8 @@ resource:
                       description: 'Customer created. A registration-confirmation mail is sent unless skipSendingRegistrationToken is true.'
                   401:
                       description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
                   422:
                       description: 'Schema validation failed, the facade rejected the customer — for example the email is already in use (error code 1202) — or sendPasswordToken was sent without storeName (error code 1204).'
 
@@ -137,6 +135,8 @@ resource:
                       description: 'Customer updated. Only the properties present in the payload are applied.'
                   401:
                       description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
                   404:
                       description: 'No customer matches the reference (error code 1201).'
                   422:
@@ -151,6 +151,8 @@ resource:
                       description: 'Customer anonymized: the record is retained with anonymized_at set and the personal data scrubbed.'
                   401:
                       description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
                   404:
                       description: 'No customer matches the reference (error code 1201).'
 
