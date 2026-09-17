@@ -41,8 +41,6 @@ class CustomerNoteResourceMapperTest extends BackendApiTestCase
 
     protected const string CREATED_AT = '2026-08-31 10:06:00.000000';
 
-    protected const string UPDATED_AT = '2026-08-31 12:30:00.000000';
-
     protected CustomerExperienceManagementApiTester $tester;
 
     public function testMapCustomerNoteEntityTransferToResourceDataMapsEveryReadableField(): void
@@ -62,7 +60,25 @@ class CustomerNoteResourceMapperTest extends BackendApiTestCase
         $this->assertSame(static::MESSAGE, $resourceData['message']);
         $this->assertSame(static::USERNAME, $resourceData['username']);
         $this->assertSame(static::CREATED_AT, $resourceData['createdAt']);
-        $this->assertSame(static::UPDATED_AT, $resourceData['updatedAt']);
+    }
+
+    public function testMapCustomerNoteEntityTransferToResourceDataDropsTheUpdateTimestamp(): void
+    {
+        // Arrange
+        $customerNoteEntityTransfer = $this->createCustomerNoteEntityTransfer()->setUpdatedAt(static::CREATED_AT);
+
+        // Act
+        $resourceData = (new CustomerNoteResourceMapper())->mapCustomerNoteEntityTransferToResourceData(
+            $customerNoteEntityTransfer,
+            $this->tester->haveCustomerTransfer(),
+        );
+
+        // Assert
+        $this->assertArrayNotHasKey(
+            SpyCustomerNoteEntityTransfer::UPDATED_AT,
+            $resourceData,
+            'A note is never modified, so its update timestamp only ever repeats createdAt.',
+        );
     }
 
     public function testMapCustomerNoteEntityTransferToResourceDataNeverExposesTheSurrogateKeys(): void
@@ -90,6 +106,16 @@ class CustomerNoteResourceMapperTest extends BackendApiTestCase
 
         $this->assertFalse($reflection->hasProperty(SpyCustomerNoteEntityTransfer::ID_CUSTOMER_NOTE));
         $this->assertFalse($reflection->hasProperty(SpyCustomerNoteEntityTransfer::FK_USER));
+    }
+
+    public function testTheResourceDoesNotDeclareAnUpdateTimestamp(): void
+    {
+        // Assert
+        $this->assertFalse(
+            (new ReflectionClass(CustomersNotesBackendResource::class))
+                ->hasProperty(SpyCustomerNoteEntityTransfer::UPDATED_AT),
+            'The schema must not reintroduce a timestamp that can never differ from createdAt.',
+        );
     }
 
     public function testMapResourceToCustomerNoteEntityTransferCopiesTheMessageOnly(): void
@@ -126,7 +152,6 @@ class CustomerNoteResourceMapperTest extends BackendApiTestCase
             ->setUuid(static::UUID)
             ->setMessage(static::MESSAGE)
             ->setUsername(static::USERNAME)
-            ->setCreatedAt(static::CREATED_AT)
-            ->setUpdatedAt(static::UPDATED_AT);
+            ->setCreatedAt(static::CREATED_AT);
     }
 }

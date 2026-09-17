@@ -46,14 +46,23 @@ class CustomerResourceMapper implements CustomerResourceMapperInterface
             ->setCompany($resource->company ?? $customerTransfer->getCompany())
             ->setStoreName($resource->storeName ?? $customerTransfer->getStoreName())
             ->setSendPasswordToken($resource->sendPasswordToken ?? $customerTransfer->getSendPasswordToken())
-            ->setSkipSendingRegistrationToken(
-                $resource->skipSendingRegistrationToken ?? $customerTransfer->getSkipSendingRegistrationToken(),
-            );
+            ->setSkipSendingRegistrationToken($this->resolveSkipSendingRegistrationToken($resource, $customerTransfer));
 
         if ($resource->localeName !== null && $resource->localeName !== '') {
             $customerTransfer->setLocale((new LocaleTransfer())->setLocaleName($resource->localeName));
         }
 
         return $customerTransfer;
+    }
+
+    protected function resolveSkipSendingRegistrationToken(
+        CustomersBackendResource $resource,
+        CustomerTransfer $customerTransfer
+    ): ?bool {
+        if ($resource->sendRegistrationToken === null) {
+            return $customerTransfer->getSkipSendingRegistrationToken();
+        }
+
+        return !$resource->sendRegistrationToken;
     }
 }

@@ -290,7 +290,7 @@ resource:
                 country given by iso2Code, so changing iso2Code on an address that carries a region requires sending a
                 region of the new country in the same request. Installations that import no region data accept null only.
             openapiContext:
-                example: 'DE-BE'
+                example: ''
 
         createdAt:
             type: string

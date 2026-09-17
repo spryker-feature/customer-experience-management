@@ -47,6 +47,8 @@ post:
               max: 15
 
     storeName:
+        - NotBlank:
+              message: 'validation.not_blank'
         - Length:
               max: 255
 

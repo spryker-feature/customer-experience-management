@@ -25,8 +25,6 @@ class CustomerNoteResourceMapper implements CustomerNoteResourceMapperInterface
 
     protected const string FIELD_CREATED_AT = 'createdAt';
 
-    protected const string FIELD_UPDATED_AT = 'updatedAt';
-
     /**
      * @return array<string, mixed>
      */
@@ -40,7 +38,6 @@ class CustomerNoteResourceMapper implements CustomerNoteResourceMapperInterface
             static::FIELD_MESSAGE => $customerNoteEntityTransfer->getMessage(),
             static::FIELD_USERNAME => $customerNoteEntityTransfer->getUsername(),
             static::FIELD_CREATED_AT => $customerNoteEntityTransfer->getCreatedAt(),
-            static::FIELD_UPDATED_AT => $customerNoteEntityTransfer->getUpdatedAt(),
         ];
     }
 

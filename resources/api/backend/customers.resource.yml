@@ -111,11 +111,14 @@ resource:
         - type: Post
           description: 'Create a customer using the Back Office registration flow'
           deserialize: true
+          denormalizationContext:
+              groups: ['customers:write', 'customers:write:create']
+              disable_json_schema_serializer_groups: false
           openapiContext:
               summary: 'Create a customer'
               responses:
                   201:
-                      description: 'Customer created. A registration-confirmation mail is sent unless skipSendingRegistrationToken is true.'
+                      description: 'Customer created. A registration-confirmation mail is sent unless sendRegistrationToken is false.'
                   401:
                       description: 'Missing or expired access token.'
                   403:
@@ -126,13 +129,16 @@ resource:
         - type: Patch
           description: 'Partially update a customer'
           deserialize: true
+          denormalizationContext:
+              groups: ['customers:write']
+              disable_json_schema_serializer_groups: false
           extraProperties:
               read: false
           openapiContext:
               summary: 'Update a customer'
               responses:
                   200:
-                      description: 'Customer updated. Only the properties present in the payload are applied.'
+                      description: 'Customer updated. Only the properties present in the payload are applied. sendRegistrationToken is not part of this operation and is ignored if sent.'
                   401:
                       description: 'Missing or expired access token.'
                   403:
@@ -140,7 +146,7 @@ resource:
                   404:
                       description: 'No customer matches the reference (error code 1201).'
                   422:
-                      description: 'Schema validation failed or the facade rejected the update (error code 1202).'
+                      description: 'Schema validation failed, or the facade rejected the update (error code 1202).'
 
         - type: Delete
           description: 'GDPR-anonymize the customer: retain the record, set anonymized_at, scrub the personal data and run the configured anonymizer plugin stack.'
@@ -175,6 +181,7 @@ resource:
 
         email:
             type: string
+            groups: ['customers:write']
             required: true
             description: "Customer's email address, also used as the storefront username. Uniqueness is validated case-insensitively."
             openapiContext:
@@ -182,6 +189,7 @@ resource:
 
         salutation:
             type: string
+            groups: ['customers:write']
             required: true
             description: "Customer's salutation."
             openapiContext:
@@ -190,6 +198,7 @@ resource:
 
         firstName:
             type: string
+            groups: ['customers:write']
             required: true
             description: "Customer's first name."
             openapiContext:
@@ -197,6 +206,7 @@ resource:
 
         lastName:
             type: string
+            groups: ['customers:write']
             required: true
             description: "Customer's last name."
             openapiContext:
@@ -204,6 +214,7 @@ resource:
 
         gender:
             type: string
+            groups: ['customers:write']
             description: "Customer's gender. Optional in the Back Office form; kept optional here."
             openapiContext:
                 example: 'Male'
@@ -211,6 +222,7 @@ resource:
 
         dateOfBirth:
             type: string
+            groups: ['customers:write']
             nullable: true
             description: "Customer's date of birth in YYYY-MM-DD format."
             openapiContext:
@@ -218,6 +230,7 @@ resource:
 
         phone:
             type: string
+            groups: ['customers:write']
             nullable: true
             description: "Customer's phone number."
             openapiContext:
@@ -225,6 +238,7 @@ resource:
 
         company:
             type: string
+            groups: ['customers:write']
             nullable: true
             description: 'Free-text company label stored on the customer record and shown in the Back Office.'
             openapiContext:
@@ -232,6 +246,7 @@ resource:
 
         localeName:
             type: string
+            groups: ['customers:write']
             nullable: true
             description: 'Locale assigned to the customer. When omitted on create, the facade assigns the current locale.'
             openapiContext:
@@ -239,27 +254,30 @@ resource:
 
         storeName:
             type: string
-            nullable: true
+            groups: ['customers:write']
+            required: true
             writable: true
-            description: 'Store context for outgoing mail templates. Required when sendPasswordToken is true.'
+            description: 'Store the customer is registered for. It is the context of every mail the registration sends, so the confirmation link points at the right storefront; a shop with more than one store has no safe default for it. The store must be one of the configured stores, otherwise the request returns 422 (error code 1208).'
             openapiContext:
                 example: 'DE'
 
         sendPasswordToken:
             type: boolean
+            groups: ['customers:write']
             writable: true
             readable: false
             description: 'Send a password-restore mail so the customer sets their own password. This is the only way the API assigns a password, mirroring the Back Office "Send password token through email" checkbox; requires storeName.'
             openapiContext:
                 example: true
 
-        skipSendingRegistrationToken:
+        sendRegistrationToken:
             type: boolean
+            groups: ['customers:write:create']
             writable: true
             readable: false
-            description: 'Suppress the registration-confirmation mail that customer registration sends by default.'
+            description: 'Send the registration-confirmation mail. Defaults to true when omitted; set it to false to suppress the mail. Supported on create only — it is outside the serialization groups of the update operation, so an update ignores it, because a registration token is issued only at registration.'
             openapiContext:
-                example: false
+                example: true
 
         registered:
             type: string

@@ -45,6 +45,8 @@ class CustomersBackendProcessorTest extends BackendApiTestCase
 
     protected const string STORE_NAME = 'DE';
 
+    protected const string RESOURCE_PROPERTY_SEND_REGISTRATION_TOKEN = 'sendRegistrationToken';
+
     protected CustomerExperienceManagementApiTester $tester;
 
     public function testProcessPostRegistersCustomerAndReturnsResource(): void
@@ -146,6 +148,77 @@ class CustomersBackendProcessorTest extends BackendApiTestCase
         // Assert
         $this->assertSame(static::STORE_NAME, $capturedStoreName);
         $this->assertTrue($capturedSendPasswordToken);
+    }
+
+    /**
+     * @dataProvider sendRegistrationTokenToSkipFlagDataProvider
+     */
+    public function testProcessPostTranslatesSendRegistrationTokenIntoTheInvertedTransferFlag(
+        ?bool $sendRegistrationToken,
+        ?bool $expectedSkipSendingRegistrationToken
+    ): void {
+        // Arrange
+        $capturedSkipSendingRegistrationToken = null;
+        $processor = $this->createProcessor([
+            'registerCustomer' => function (CustomerTransfer $customerTransfer) use (
+                &$capturedSkipSendingRegistrationToken,
+            ): CustomerResponseTransfer {
+                $capturedSkipSendingRegistrationToken = $customerTransfer->getSkipSendingRegistrationToken();
+
+                return (new CustomerResponseTransfer())->setIsSuccess(true)->setCustomerTransfer($customerTransfer);
+            },
+        ]);
+
+        $resourceData = [CustomerTransfer::EMAIL => 'registration.token@example.com'];
+
+        if ($sendRegistrationToken !== null) {
+            $resourceData[static::RESOURCE_PROPERTY_SEND_REGISTRATION_TOKEN] = $sendRegistrationToken;
+        }
+
+        // Act
+        $processor->process(
+            $this->tester->getResource(CustomersBackendResource::class, $resourceData),
+            $this->tester->getPostOperation(CustomersBackendResource::class),
+        );
+
+        // Assert
+        $this->assertSame($expectedSkipSendingRegistrationToken, $capturedSkipSendingRegistrationToken);
+    }
+
+    /**
+     * @return array<string, array{bool|null, bool|null}>
+     */
+    public function sendRegistrationTokenToSkipFlagDataProvider(): array
+    {
+        return [
+            'false suppresses the mail' => [false, true],
+            'true sends the mail' => [true, false],
+            'omitted leaves the core default, which sends the mail' => [null, null],
+        ];
+    }
+
+    public function testProcessPatchUpdatesTheCustomerWhenSendRegistrationTokenIsAbsent(): void
+    {
+        // Arrange
+        $customerTransfer = (new CustomerTransfer())->setCustomerReference(static::UNKNOWN_CUSTOMER_REFERENCE);
+        $processor = $this->createProcessor([
+            'findCustomerByReference' => (new CustomerResponseTransfer())
+                ->setHasCustomer(true)
+                ->setCustomerTransfer($customerTransfer),
+            'updateCustomer' => (new CustomerResponseTransfer())
+                ->setIsSuccess(true)
+                ->setCustomerTransfer($customerTransfer),
+        ]);
+
+        // Act
+        $result = $processor->process(
+            $this->tester->getResource(CustomersBackendResource::class, []),
+            $this->tester->getPatchOperation(CustomersBackendResource::class),
+            [CustomerTransfer::CUSTOMER_REFERENCE => static::UNKNOWN_CUSTOMER_REFERENCE],
+        );
+
+        // Assert
+        $this->assertInstanceOf(CustomersBackendResource::class, $result);
     }
 
     public function testProcessPostSurfacesFacadeErrorsAsUnprocessableEntity(): void
