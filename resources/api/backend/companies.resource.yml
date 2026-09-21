@@ -84,8 +84,6 @@ resource:
               Partially update a company. Only the properties present in the payload are applied,
               so `name`, `status` and `isActive` can each be changed on their own.
           deserialize: true
-          extraProperties:
-              read: false
           openapiContext:
               summary: 'Update a company'
               responses:

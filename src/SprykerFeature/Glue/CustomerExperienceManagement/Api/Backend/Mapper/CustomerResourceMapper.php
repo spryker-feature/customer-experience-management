@@ -36,16 +36,16 @@ class CustomerResourceMapper implements CustomerResourceMapperInterface
         CustomerTransfer $customerTransfer
     ): CustomerTransfer {
         $customerTransfer
-            ->setEmail($resource->email ?? $customerTransfer->getEmail())
-            ->setSalutation($resource->salutation ?? $customerTransfer->getSalutation())
-            ->setFirstName($resource->firstName ?? $customerTransfer->getFirstName())
-            ->setLastName($resource->lastName ?? $customerTransfer->getLastName())
-            ->setGender($resource->gender ?? $customerTransfer->getGender())
-            ->setDateOfBirth($resource->dateOfBirth ?? $customerTransfer->getDateOfBirth())
-            ->setPhone($resource->phone ?? $customerTransfer->getPhone())
-            ->setCompany($resource->company ?? $customerTransfer->getCompany())
-            ->setStoreName($resource->storeName ?? $customerTransfer->getStoreName())
-            ->setSendPasswordToken($resource->sendPasswordToken ?? $customerTransfer->getSendPasswordToken())
+            ->setEmail($resource->email)
+            ->setSalutation($resource->salutation)
+            ->setFirstName($resource->firstName)
+            ->setLastName($resource->lastName)
+            ->setGender($resource->gender)
+            ->setDateOfBirth($resource->dateOfBirth)
+            ->setPhone($resource->phone)
+            ->setCompany($resource->company)
+            ->setStoreName($resource->storeName)
+            ->setSendPasswordToken($resource->sendPasswordToken)
             ->setSkipSendingRegistrationToken($this->resolveSkipSendingRegistrationToken($resource, $customerTransfer));
 
         if ($resource->localeName !== null && $resource->localeName !== '') {

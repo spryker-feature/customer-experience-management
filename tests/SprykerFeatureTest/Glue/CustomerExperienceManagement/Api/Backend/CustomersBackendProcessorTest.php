@@ -357,6 +357,11 @@ class CustomersBackendProcessorTest extends BackendApiTestCase
         );
     }
 
+    /**
+     * On PATCH the read stage hands the processor the provider-built resource with the payload
+     * deserialized onto it, so the resource already carries the stored value of every attribute the
+     * payload omitted. This test builds that object by hand; the kernel-level tests cover the merge.
+     */
     public function testProcessPatchAppliesOnlySuppliedFieldsAndKeepsTheRest(): void
     {
         // Arrange
@@ -381,7 +386,11 @@ class CustomersBackendProcessorTest extends BackendApiTestCase
 
         // Act
         $processor->process(
-            $this->tester->getResource(CustomersBackendResource::class, [CustomerTransfer::FIRST_NAME => 'Patched']),
+            $this->tester->getResource(CustomersBackendResource::class, [
+                CustomerTransfer::EMAIL => $expectedEmail,
+                CustomerTransfer::LAST_NAME => $expectedLastName,
+                CustomerTransfer::FIRST_NAME => 'Patched',
+            ]),
             $this->tester->getPatchOperation(CustomersBackendResource::class),
             [CustomerTransfer::CUSTOMER_REFERENCE => $existingCustomerTransfer->getCustomerReferenceOrFail()],
         );

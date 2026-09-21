@@ -132,8 +132,6 @@ resource:
           denormalizationContext:
               groups: ['customers:write']
               disable_json_schema_serializer_groups: false
-          extraProperties:
-              read: false
           openapiContext:
               summary: 'Update a customer'
               responses:

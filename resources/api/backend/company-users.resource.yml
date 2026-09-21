@@ -181,8 +181,6 @@ resource:
               The active and default statuses are not changed here; they are changed using the
               `/set-status` and `/set-default` operations.
           deserialize: true
-          extraProperties:
-              read: false
           openapiContext:
               summary: 'Update a company user'
               responses:

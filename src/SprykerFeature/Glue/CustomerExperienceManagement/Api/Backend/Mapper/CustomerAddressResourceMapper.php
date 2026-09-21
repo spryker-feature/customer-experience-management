@@ -54,21 +54,21 @@ class CustomerAddressResourceMapper implements CustomerAddressResourceMapperInte
         AddressTransfer $addressTransfer
     ): AddressTransfer {
         return $addressTransfer
-            ->setSalutation($resource->salutation ?? $addressTransfer->getSalutation())
-            ->setFirstName($resource->firstName ?? $addressTransfer->getFirstName())
-            ->setLastName($resource->lastName ?? $addressTransfer->getLastName())
-            ->setAddress1($resource->address1 ?? $addressTransfer->getAddress1())
-            ->setAddress2($resource->address2 ?? $addressTransfer->getAddress2())
-            ->setAddress3($resource->address3 ?? $addressTransfer->getAddress3())
-            ->setCompany($resource->company ?? $addressTransfer->getCompany())
-            ->setCity($resource->city ?? $addressTransfer->getCity())
-            ->setZipCode($resource->zipCode ?? $addressTransfer->getZipCode())
-            ->setIso2Code($resource->iso2Code ?? $addressTransfer->getIso2Code())
-            ->setRegion($resource->region ?? $addressTransfer->getRegion())
-            ->setPhone($resource->phone ?? $addressTransfer->getPhone())
-            ->setComment($resource->comment ?? $addressTransfer->getComment())
-            ->setIsDefaultBilling($resource->isDefaultBilling ?? $addressTransfer->getIsDefaultBilling())
-            ->setIsDefaultShipping($resource->isDefaultShipping ?? $addressTransfer->getIsDefaultShipping());
+            ->setSalutation($resource->salutation)
+            ->setFirstName($resource->firstName)
+            ->setLastName($resource->lastName)
+            ->setAddress1($resource->address1)
+            ->setAddress2($resource->address2)
+            ->setAddress3($resource->address3)
+            ->setCompany($resource->company)
+            ->setCity($resource->city)
+            ->setZipCode($resource->zipCode)
+            ->setIso2Code($resource->iso2Code)
+            ->setRegion($resource->region)
+            ->setPhone($resource->phone)
+            ->setComment($resource->comment)
+            ->setIsDefaultBilling($resource->isDefaultBilling)
+            ->setIsDefaultShipping($resource->isDefaultShipping);
     }
 
     protected function isDefaultAddress(string|int|null $defaultAddressId, ?int $idCustomerAddress): bool
