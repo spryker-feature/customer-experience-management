@@ -82,7 +82,7 @@ resource:
                   404:
                       description: 'Customer not found.'
                   422:
-                      description: 'Validation failed. The body parsed, but one or more properties were rejected; errors carry a per-field `source.pointer`.'
+                      description: 'Validation failed. The body parsed, but one or more properties were rejected; each error carries code 901 and a `detail` prefixed with the rejected attribute, for example `zipCode => This field is missing.`.'
 
         - type: Patch
           description: 'Partially update an address of the given customer. Setting isDefaultBilling or isDefaultShipping to true promotes this address and demotes the previous default.'
@@ -105,7 +105,7 @@ resource:
                   404:
                       description: 'Customer not found, or the address does not belong to this customer.'
                   422:
-                      description: 'Validation failed. The body parsed, but one or more of the properties sent were rejected; errors carry a per-field `source.pointer`.'
+                      description: 'Validation failed. The body parsed, but one or more of the properties sent were rejected; each error carries code 901 and a `detail` prefixed with the rejected attribute, for example `zipCode => This field is missing.`.'
 
         - type: Delete
           description: 'Delete an address of the given customer. The address row is removed; if it was a default billing or shipping address, the customer is left without that default.'
