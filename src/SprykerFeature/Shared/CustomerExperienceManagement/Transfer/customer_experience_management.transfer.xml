@@ -148,4 +148,34 @@
         <property name="messages" type="ResponseMessage[]" singular="message"/>
     </transfer>
 
+    <transfer name="CompanyBusinessUnitResponse">
+    </transfer>
+
+    <transfer name="CompanyUnitAddressResponse">
+    </transfer>
+
+    <transfer name="CompanyUnitAddressLabelCollection">
+    </transfer>
+
+    <transfer name="CompanyUnitAddressCollection">
+    </transfer>
+
+    <transfer name="CompanyUnitAddress">
+    </transfer>
+
+    <transfer name="CompanyUnitAddressCriteriaFilter">
+    </transfer>
+
+    <transfer name="CompanyUnitAddressLabelConditions" strict="true">
+    </transfer>
+
+    <transfer name="CompanyUnitAddressLabelCriteria" strict="true">
+    </transfer>
+
+    <transfer name="CompanyBusinessUnitCriteriaFilter">
+    </transfer>
+
+    <transfer name="Country">
+    </transfer>
+
 </transfers>

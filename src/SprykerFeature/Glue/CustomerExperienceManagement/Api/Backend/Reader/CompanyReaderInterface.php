@@ -14,4 +14,11 @@ use Generated\Shared\Transfer\CompanyTransfer;
 interface CompanyReaderInterface
 {
     public function getCompanyByUuid(string $uuid): CompanyTransfer;
+
+    /**
+     * @param array<int, int> $companyIds
+     *
+     * @return array<int, string> Keyed by company id.
+     */
+    public function getCompanyUuidsByCompanyIds(array $companyIds): array;
 }

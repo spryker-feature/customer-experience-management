@@ -1,0 +1,221 @@
+resource:
+    name: CompanyBusinessUnits
+    shortName: company-business-units
+    description: 'Company business unit management: list, read, create, update and delete business units.'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CompanyBusinessUnitsBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CompanyBusinessUnitsBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: Get
+          description: 'Retrieve a single business unit by uuid.'
+          openapiContext:
+              summary: 'Retrieve a business unit'
+              responses:
+                  200:
+                      description: 'Business unit returned.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No business unit matches the uuid (error code 1217).'
+
+        - type: GetCollection
+          description: >-
+              Retrieve a paginated, filterable business unit collection.
+              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
+              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Search: `q` matches partially and case-insensitively against the business unit name,
+              the name of the company it belongs to, and the name of its parent business unit.
+              Filtering follows the JSON:API `filter[company-business-units.<property>]` form:
+              `filter[company-business-units.name]` matches the business unit name partially and
+              case-insensitively.
+              Sorting: `sort` accepts name, companyName or parentName, prefixed with `-` for
+              descending; an unsupported field returns 400. The collection is ordered
+              deterministically, so paging through it never repeats or skips a business unit; the
+              most recently created one leads when no sort is given.
+          openapiContext:
+              summary: 'List business units'
+              parameters:
+                  - name: 'q'
+                    in: query
+                    required: false
+                    description: 'Return only the business units matching this fragment in the business unit name, the name of the company it belongs to, or the name of its parent business unit. Matched partially and case-insensitively.'
+                    schema:
+                        type: string
+                    example: 'procurement'
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Any other field returns 400. Without a sort, the most recently created business unit leads.'
+                    schema:
+                        type: string
+                        enum: ['name', '-name', 'companyName', '-companyName', 'parentName', '-parentName']
+                    example: '-name'
+                  - name: 'filter[company-business-units.name]'
+                    in: query
+                    required: false
+                    description: 'Return only the business units whose name contains this fragment. Matched case-insensitively. A filter addressing any other property returns 400.'
+                    schema:
+                        type: string
+                    example: 'acme'
+              responses:
+                  200:
+                      description: 'Business unit collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203), a filter addressing a property other than name (error code 1215), or a filter key that is not in `filter[company-business-units.<property>]` form (error code 011).'
+                  401:
+                      description: 'Missing or expired access token.'
+
+        - type: Post
+          description: >-
+              Create a business unit. `name` and `companyUuid` are required. The business unit
+              belongs to that company for its lifetime. A parent business unit may be assigned with
+              `parentBusinessUnitUuid`; it must belong to the same company. Existing addresses may
+              be assigned with `addressUuids`; they must belong to the same company, and they are
+              created through the business unit address resource beforehand.
+          deserialize: true
+          openapiContext:
+              summary: 'Create a business unit'
+              responses:
+                  201:
+                      description: 'Business unit created.'
+                  400:
+                      description: 'The request body could not be read — malformed JSON, or a body that is not a valid JSON:API document.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No company matches `companyUuid` (error code 1213), no business unit matches `parentBusinessUnitUuid` (error code 1223), or no address matches an entry of `addressUuids` (error code 1227).'
+                  422:
+                      description: 'Validation failed, the parent belongs to another company (error code 1226), an address belongs to another company (error code 1229), or the business unit was rejected (error code 1222).'
+
+        - type: Patch
+          description: >-
+              Partially update a business unit. Only the properties present in the payload are
+              applied, so `name`, `iban`, `bic`, `phone`, `parentBusinessUnitUuid` and
+              `addressUuids` can each be changed on their own. Send `parentBusinessUnitUuid` as null to detach the business
+              unit from its parent; a parent that would make the unit its own ancestor is rejected.
+              The owning company is fixed at creation, so `companyUuid` is rejected here rather than
+              ignored.
+          deserialize: true
+          extraProperties:
+              read: false
+          openapiContext:
+              summary: 'Update a business unit'
+              responses:
+                  200:
+                      description: 'Business unit updated. Only the properties present in the payload are applied.'
+                  400:
+                      description: 'The request body could not be read — malformed JSON, or a body that is not a valid JSON:API document.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No business unit matches the uuid (error code 1217), no business unit matches `parentBusinessUnitUuid` (error code 1223), or no address matches an entry of `addressUuids` (error code 1227).'
+                  422:
+                      description: 'Validation failed, `companyUuid` was sent (the owning company is fixed at creation), the parent would make the business unit its own ancestor (error code 1225), the parent belongs to another company (error code 1226), an address belongs to another company (error code 1229), or the update was rejected (error code 1222).'
+
+        - type: Delete
+          description: >-
+              Delete a business unit. Business units that have this one as their parent are left
+              without a parent, and addresses assigned to it stay with the company but lose the
+              assignment. A business unit that still has company users assigned cannot be deleted.
+          openapiContext:
+              summary: 'Delete a business unit'
+              responses:
+                  204:
+                      description: 'Business unit deleted.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No business unit matches the uuid (error code 1217).'
+                  422:
+                      description: 'The business unit still has company users assigned and cannot be deleted (error code 1224).'
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: true
+            description: 'Public unique business unit identifier.'
+            openapiContext:
+                example: '4d1b3f9a-9d4c-5c1e-9f6b-2b5a7c8d9e01'
+
+        name:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Business unit name.'
+            openapiContext:
+                example: 'Acme Procurement'
+
+        companyUuid:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: >-
+                Identifier of the company the business unit belongs to. Required on create and
+                fixed afterwards.
+            openapiContext:
+                example: '0818f408-cc84-575d-ad54-92118a0e4273'
+
+        parentBusinessUnitUuid:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: >-
+                Identifier of the business unit this one reports to, or null when it has no parent.
+                Can be set on create and changed on update; send null to detach. The parent must
+                belong to the same company, and must not make the unit its own ancestor.
+            openapiContext:
+                example: 'b7c2e4d6-1a3f-5b8c-9d0e-4f6a8b2c1d3e'
+
+        iban:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: 'International Bank Account Number of the business unit.'
+            openapiContext:
+                example: 'DE89370400440532013000'
+
+        bic:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: 'Business Identifier Code of the account held by the business unit.'
+            openapiContext:
+                example: 'DEUTDEFF'
+
+        phone:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: 'Contact phone number of the business unit.'
+            openapiContext:
+                example: '+49 30 234567890'
+
+        addressUuids:
+            type: array
+            writable: true
+            readable: true
+            required: false
+            description: >-
+                Identifiers of the addresses assigned to this business unit. Can be set on create
+                and changed on update. Sending it replaces the whole set, so send every address
+                that should stay assigned; an empty array unassigns all of them, and leaving it out
+                of an update keeps the current assignment. The addresses must belong to the same
+                company, and an address that belongs to another one is rejected. The addresses
+                themselves are created and edited through the business unit address resource.
+            openapiContext:
+                example: ['9f2c7b41-5d8e-5a3c-b06f-1e4d7a9c2b58']

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace SprykerFeature\Glue\CustomerExperienceManagement;
 
 use Spryker\Glue\Kernel\AbstractBundleConfig;
+use Spryker\Zed\CompanyUnitAddress\CompanyUnitAddressConfig;
 
 class CustomerExperienceManagementConfig extends AbstractBundleConfig
 {
@@ -37,6 +38,16 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
      * @uses \Spryker\Zed\Country\Business\Validator\CustomerAddressValidator::ERROR_MESSAGE_REGION_UNKNOWN
      */
     protected const string ERROR_MESSAGE_REGION_UNKNOWN = 'country.validation.unknown_region';
+
+    /**
+     * @uses \Spryker\Zed\CompanyBusinessUnit\Business\CompanyBusinessUnitWriter\CompanyBusinessUnitWriter::ERROR_MESSAGE_HAS_RELATED_USERS
+     */
+    protected const string ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS = 'company.company_business_unit.delete.error.has_users';
+
+    /**
+     * @uses \Spryker\Zed\CompanyBusinessUnit\Business\CompanyBusinessUnitWriter\CompanyBusinessUnitWriter::ERROR_MESSAGE_HIERARCHY_CYCLE_IN_BUSINESS_UNIT_UPDATE
+     */
+    protected const string ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE = 'message.business_unit.update.cycle_dependency_error';
 
     /**
      * @uses \Spryker\Zed\Country\Business\Validator\CustomerAddressValidator::ERROR_MESSAGE_REGION_NOT_IN_COUNTRY
@@ -71,7 +82,25 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
 
     public const string RESPONSE_CODE_COMPANY_VALIDATION = '1214';
 
+    public const string FILTER_FIELD_COMPANY_UNIT_ADDRESS_COMPANY_UUID = CompanyUnitAddressConfig::FILTER_FIELD_COMPANY_UUID;
+
     public const string RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD = '1215';
+
+    public const string RESPONSE_CODE_COMPANY_BUSINESS_UNIT_VALIDATION = '1222';
+
+    public const string RESPONSE_CODE_PARENT_COMPANY_BUSINESS_UNIT_NOT_FOUND = '1223';
+
+    public const string RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS = '1224';
+
+    public const string RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE = '1225';
+
+    public const string RESPONSE_CODE_PARENT_COMPANY_BUSINESS_UNIT_COMPANY_MISMATCH = '1226';
+
+    public const string RESPONSE_CODE_COMPANY_UNIT_ADDRESS_NOT_FOUND = '1227';
+
+    public const string RESPONSE_CODE_COMPANY_UNIT_ADDRESS_VALIDATION = '1228';
+
+    public const string RESPONSE_CODE_COMPANY_UNIT_ADDRESS_COMPANY_MISMATCH = '1229';
 
     public const string RESPONSE_CODE_COMPANY_USER_NOT_FOUND = '1216';
 
@@ -125,6 +154,22 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
 
     public const string RESPONSE_DETAILS_NON_SCALAR_FILTER_VALUE = 'Filter field "%s" expects a single value.';
 
+    public const string RESPONSE_DETAILS_COMPANY_BUSINESS_UNIT_VALIDATION = 'The company business unit request could not be processed.';
+
+    public const string RESPONSE_DETAILS_UNKNOWN_COUNTRY = 'Country "%s" is not available in this shop.';
+
+    public const string RESPONSE_DETAILS_UNKNOWN_COMPANY_UNIT_ADDRESS_LABEL = 'labels => Label "%s" is not configured in the shop. Supported labels: %s.';
+
+    public const string RESPONSE_DETAILS_PARENT_COMPANY_BUSINESS_UNIT_NOT_FOUND = 'Parent company business unit with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_PARENT_COMPANY_BUSINESS_UNIT_COMPANY_MISMATCH = 'Parent company business unit "%s" belongs to another company.';
+
+    public const string RESPONSE_DETAILS_COMPANY_UNIT_ADDRESS_NOT_FOUND = 'Company business unit address with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_UNIT_ADDRESS_VALIDATION = 'The company business unit address request could not be processed.';
+
+    public const string RESPONSE_DETAILS_COMPANY_UNIT_ADDRESS_COMPANY_MISMATCH = 'Company business unit address "%s" belongs to another company.';
+
     /**
      * Specification:
      * - Maps a domain validation glossary key to the API response code reported for it.
@@ -143,6 +188,8 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
             static::ERROR_MESSAGE_COUNTRY_UNKNOWN => static::RESPONSE_CODE_UNKNOWN_COUNTRY,
             static::ERROR_MESSAGE_REGION_UNKNOWN => static::RESPONSE_CODE_UNKNOWN_REGION,
             static::ERROR_MESSAGE_REGION_NOT_IN_COUNTRY => static::RESPONSE_CODE_REGION_NOT_IN_COUNTRY,
+            static::ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS => static::RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS,
+            static::ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE => static::RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE,
         ];
     }
 }

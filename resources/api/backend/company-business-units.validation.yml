@@ -1,0 +1,79 @@
+post:
+    name:
+        - NotBlank
+        - Length:
+              max: 100
+
+    companyUuid:
+        - NotBlank
+        - Uuid
+
+    parentBusinessUnitUuid:
+        - Uuid
+
+    iban:
+        - Length:
+              max: 100
+
+    bic:
+        - Length:
+              max: 100
+
+    phone:
+        - Length:
+              max: 20
+
+    addressUuids:
+        - Optional:
+              constraints:
+                  - Type:
+                        type: array
+                  - All:
+                        constraints:
+                            - Uuid
+
+patch:
+    companyUuid:
+        - Optional:
+              constraints:
+                  - Blank:
+                        message: 'This field cannot be changed after creation.'
+
+    name:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 100
+
+    parentBusinessUnitUuid:
+        - Optional:
+              constraints:
+                  - Uuid
+
+    iban:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 100
+
+    bic:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 100
+
+    phone:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 20
+
+    addressUuids:
+        - Optional:
+              constraints:
+                  - Type:
+                        type: array
+                  - All:
+                        constraints:
+                            - Uuid

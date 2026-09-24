@@ -1,0 +1,222 @@
+resource:
+    name: CompanyBusinessUnitAddresses
+    shortName: company-business-unit-addresses
+    description: 'Company business unit address management: list, read, create and update business unit addresses.'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CompanyBusinessUnitAddressesBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CompanyBusinessUnitAddressesBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: Get
+          description: 'Retrieve a single business unit address by uuid.'
+          openapiContext:
+              summary: 'Retrieve a business unit address'
+              responses:
+                  200:
+                      description: 'Address returned.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No address matches the uuid (error code 1227).'
+
+        - type: GetCollection
+          description: >-
+              Retrieve a paginated, filterable business unit address collection.
+              Pagination: either `page=<number>` (page number, default 1) or the JSON:API item
+              window `page[limit]` (default 10), `page[offset]` (default 0).
+              Search: `q` matches partially and case-insensitively against the country name, city,
+              zip code, street, number, addition to address, and the name of the owning company.
+              Filtering follows the JSON:API `filter[company-business-unit-addresses.<property>]`
+              form: `filter[company-business-unit-addresses.companyUuid]` narrows the collection to
+              the addresses of one company, and
+              `filter[company-business-unit-addresses.companyBusinessUnitUuid]` to the addresses
+              assigned to one business unit. Without either, every address is returned.
+              Sorting: `sort` accepts city or zipCode, prefixed with `-` for descending; an
+              unsupported field returns 400. Without a sort the most recently created address
+              leads. An address assigned to several business units is listed once.
+          openapiContext:
+              summary: 'List business unit addresses'
+              parameters:
+                  - name: 'q'
+                    in: query
+                    required: false
+                    description: 'Return only the addresses matching this fragment in the country name, city, zip code, street, number, addition to address, or the name of the owning company. Matched partially and case-insensitively.'
+                    schema:
+                        type: string
+                    example: 'berlin'
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Without a sort, the most recently created address leads.'
+                    schema:
+                        type: string
+                        enum: ['city', '-city', 'zipCode', '-zipCode']
+                    example: '-zipCode'
+                  - name: 'filter[company-business-unit-addresses.companyUuid]'
+                    in: query
+                    required: false
+                    description: 'Return only the addresses of this company. A filter addressing any other property returns 400.'
+                    schema:
+                        type: string
+                    example: '0818f408-cc84-575d-ad54-92118a0e4273'
+                  - name: 'filter[company-business-unit-addresses.companyBusinessUnitUuid]'
+                    in: query
+                    required: false
+                    description: 'Return only the addresses assigned to this business unit.'
+                    schema:
+                        type: string
+                    example: '4d1b3f9a-9d4c-5c1e-9f6b-2b5a7c8d9e01'
+              responses:
+                  200:
+                      description: 'Address collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203), a filter addressing a property other than companyUuid or companyBusinessUnitUuid (error code 1215), or a filter key that is not in `filter[company-business-unit-addresses.<property>]` form (error code 011).'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No company matches the filtered uuid (error code 1213), or no business unit matches the filtered uuid (error code 1217).'
+
+        - type: Post
+          description: >-
+              Create an address for a company. `companyUuid` is required and decides which company
+              owns the address. A new address is not assigned to any business unit; assign it by
+              sending `addressUuids` on the business unit.
+          deserialize: true
+          openapiContext:
+              summary: 'Create a business unit address'
+              responses:
+                  201:
+                      description: 'Address created.'
+                  400:
+                      description: 'The request body could not be read — malformed JSON, or a body that is not a valid JSON:API document.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No company matches `companyUuid` (error code 1213).'
+                  422:
+                      description: 'Validation failed, or the address was rejected (error code 1228).'
+
+        - type: Patch
+          description: >-
+              Partially update a business unit address. Only the properties present in the payload
+              are applied, so each of them can be changed on its own, including `companyUuid` to
+              move the address to another company.
+          deserialize: true
+          extraProperties:
+              read: false
+          openapiContext:
+              summary: 'Update a business unit address'
+              responses:
+                  200:
+                      description: 'Address updated. Only the properties present in the payload are applied.'
+                  400:
+                      description: 'The request body could not be read — malformed JSON, or a body that is not a valid JSON:API document.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  404:
+                      description: 'No address matches the uuid (error code 1227), or no company matches `companyUuid` (error code 1213).'
+                  422:
+                      description: 'Validation failed, or the update was rejected (error code 1228).'
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: true
+            description: 'Public unique address identifier.'
+            openapiContext:
+                example: '9f2c7b41-5d8e-5a3c-b06f-1e4d7a9c2b58'
+
+        companyUuid:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: >-
+                Identifier of the company that owns the address. Required on create and can be
+                changed on update. Use it as a filter to list the addresses of one company.
+            openapiContext:
+                example: '0818f408-cc84-575d-ad54-92118a0e4273'
+
+        iso2Code:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Two-letter ISO country code of the address country.'
+            openapiContext:
+                example: 'DE'
+
+        street:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Street of the address.'
+            openapiContext:
+                example: 'Julie-Wolfthorn-Straße'
+
+        number:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: 'House number of the address.'
+            openapiContext:
+                example: '1'
+
+        additionToAddress:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: 'Additional address line.'
+            openapiContext:
+                example: 'Floor 3'
+
+        city:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'City of the address.'
+            openapiContext:
+                example: 'Berlin'
+
+        zipCode:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Zip code of the address.'
+            openapiContext:
+                example: '10115'
+
+        comment:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            description: 'Free-text note kept with the address.'
+            openapiContext:
+                example: 'Deliveries accepted between 9am and 5pm.'
+
+        labels:
+            type: array
+            writable: true
+            readable: true
+            required: false
+            description: >-
+                Names of the labels attached to the address, chosen from the labels configured in
+                the shop. Sending it replaces the whole set, so send every label that should stay
+                attached; an empty array detaches all of them, and leaving it out of an update
+                keeps the current labels.
+            openapiContext:
+                example: ['contact person']

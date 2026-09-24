@@ -15,9 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CollectionQueryExceptionFactory
 {
-    /**
-     * @param array<int, string> $sortableFields
-     */
+ /**
+  * @param array<int, string> $sortableFields
+  */
     public function createInvalidSortFieldException(string $sortField, array $sortableFields): GlueApiException
     {
         return new GlueApiException(

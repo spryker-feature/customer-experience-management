@@ -1,0 +1,107 @@
+post:
+    companyUuid:
+        - NotBlank
+        - Uuid
+
+    iso2Code:
+        - NotBlank
+        - Country: ~
+
+    street:
+        - NotBlank
+        - Length:
+              max: 255
+
+    number:
+        - Length:
+              max: 255
+
+    additionToAddress:
+        - Length:
+              max: 255
+
+    city:
+        - NotBlank
+        - Length:
+              max: 255
+
+    zipCode:
+        - NotBlank
+        - Length:
+              max: 10
+
+    comment:
+        - Length:
+              max: 255
+
+    labels:
+        - Type:
+              type: array
+        - All:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 255
+
+patch:
+    companyUuid:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Uuid
+
+    iso2Code:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Country: ~
+
+    street:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 255
+
+    number:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+
+    additionToAddress:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+
+    city:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 255
+
+    zipCode:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 10
+
+    comment:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
+
+    labels:
+        - Optional:
+              constraints:
+                  - Type:
+                        type: array
+                  - All:
+                        constraints:
+                            - NotBlank
+                            - Length:
+                                  max: 255
