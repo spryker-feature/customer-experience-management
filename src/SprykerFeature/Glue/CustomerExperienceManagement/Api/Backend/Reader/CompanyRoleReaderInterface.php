@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * Copyright © 2016-present Spryker Systems GmbH. All rights reserved.
+ * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ */
+
+declare(strict_types=1);
+
+namespace SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader;
+
+use Generated\Shared\Transfer\CompanyRoleTransfer;
+
+interface CompanyRoleReaderInterface
+{
+    public function getCompanyRoleByUuid(string $uuid): CompanyRoleTransfer;
+
+    public function getCompanyRoleById(int $idCompanyRole): CompanyRoleTransfer;
+}

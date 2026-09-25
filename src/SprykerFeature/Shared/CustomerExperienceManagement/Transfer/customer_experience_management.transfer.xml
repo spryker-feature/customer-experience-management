@@ -40,6 +40,7 @@
     </transfer>
 
     <transfer name="RestErrorMessage">
+        <property name="code" type="string" description="A Spryker specific error code."/>
         <property name="status" type="int" description="A HTTP status code."/>
         <property name="detail" type="string" description="A detailed error message providing more specific information about an issue."/>
     </transfer>
@@ -117,10 +118,17 @@
 
     <transfer name="CompanyRoleCollection">
         <property name="roles" type="CompanyRole[]" singular="role"/>
+        <property name="pagination" type="Pagination"/>
     </transfer>
 
     <transfer name="CompanyRole">
         <property name="uuid" type="string"/>
+        <property name="idCompanyRole" type="int"/>
+        <property name="fkCompany" type="int"/>
+        <property name="name" type="string"/>
+        <property name="isDefault" type="bool"/>
+        <property name="permissionCollection" type="PermissionCollection"/>
+        <property name="company" type="Company"/>
     </transfer>
 
     <transfer name="CompanyUserCollection">
@@ -146,6 +154,34 @@
         <property name="companyTransfer" type="Company"/>
         <property name="isSuccessful" type="bool"/>
         <property name="messages" type="ResponseMessage[]" singular="message"/>
+    </transfer>
+
+    <transfer name="CompanyRoleCollectionCriteria" strict="true">
+        <property name="companyRoleConditions" type="CompanyRoleConditions"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
+        <property name="pagination" type="Pagination"/>
+    </transfer>
+
+    <transfer name="CompanyRoleConditions" strict="true">
+        <property name="companyUuids" type="string[]" singular="companyUuid"/>
+        <property name="isDefault" type="bool"/>
+        <property name="name" type="string"/>
+        <property name="companyName" type="string"/>
+        <property name="searchTerm" type="string"/>
+    </transfer>
+
+    <transfer name="CompanyRoleResponse">
+        <property name="companyRoleTransfer" type="CompanyRole"/>
+        <property name="isSuccessful" type="bool"/>
+        <property name="messages" type="ResponseMessage[]" singular="message"/>
+    </transfer>
+
+    <transfer name="Permission">
+        <property name="key" type="string"/>
+    </transfer>
+
+    <transfer name="PermissionCollection">
+        <property name="permissions" type="Permission[]" singular="permission"/>
     </transfer>
 
     <transfer name="CompanyBusinessUnitResponse">
@@ -177,5 +213,4 @@
 
     <transfer name="Country">
     </transfer>
-
 </transfers>

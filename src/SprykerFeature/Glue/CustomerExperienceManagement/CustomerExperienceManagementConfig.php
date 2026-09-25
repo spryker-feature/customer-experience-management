@@ -54,6 +54,29 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
      */
     protected const string ERROR_MESSAGE_REGION_NOT_IN_COUNTRY = 'country.validation.region_not_in_country';
 
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_NAME_REQUIRED = 'A company role name is required.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_NAME_TOO_LONG = 'The company role name must not exceed 255 characters.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_NAME_NOT_UNIQUE = 'A company role with this name already exists in this company.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_COMPANY_REQUIRED = 'A company is required for a company role.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_NOT_FOUND = 'The company role was not found.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_UNKNOWN_PERMISSION = 'At least one of the given permissions does not exist.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_COMPANY_IMMUTABLE = 'The company of an existing company role cannot be changed.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_DEFAULT_CANNOT_BE_CLEARED = 'The default flag cannot be cleared. Make another company role the default instead.';
+
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_DELETE_IS_DEFAULT = 'The default company role cannot be deleted.';
+
+    /**
+     * @uses \Spryker\Zed\CompanyRole\Business\Validator\CompanyRoleValidator::ERROR_DELETE_HAS_USERS
+     */
+    protected const string ERROR_MESSAGE_COMPANY_ROLE_DELETE_HAS_USERS = 'company.company_role.delete.error.has_users';
+
     public const string RESPONSE_CODE_CUSTOMER_NOT_FOUND = '1201';
 
     public const string RESPONSE_CODE_VALIDATION = '1202';
@@ -114,13 +137,23 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
 
     public const string RESPONSE_CODE_COMPANY_USER_DEFAULT_INVALID = '1221';
 
+    public const string RESPONSE_CODE_COMPANY_ROLE_VALIDATION = '1230';
+
+    public const string RESPONSE_CODE_COMPANY_ROLE_IS_DEFAULT = '1231';
+
+    public const string RESPONSE_CODE_COMPANY_ROLE_HAS_COMPANY_USERS = '1232';
+
+    public const string RESPONSE_CODE_UNKNOWN_PERMISSION = '1233';
+
+    public const string RESPONSE_CODE_COMPANY_ROLE_DEFAULT_CANNOT_BE_CLEARED = '1234';
+
+    public const string RESPONSE_CODE_COMPANY_ROLE_COMPANY_IMMUTABLE = '1235';
+
     public const string RESPONSE_DETAILS_CUSTOMER_NOT_FOUND = 'Customer with reference "%s" was not found.';
 
     public const string RESPONSE_DETAILS_COMPANY_USER_NOT_FOUND = 'Company user with uuid "%s" was not found.';
 
     public const string RESPONSE_DETAILS_COMPANY_BUSINESS_UNIT_NOT_FOUND = 'Company business unit with uuid "%s" was not found.';
-
-    public const string RESPONSE_DETAILS_COMPANY_ROLE_NOT_FOUND = 'Company role with uuid "%s" was not found.';
 
     public const string RESPONSE_DETAILS_COMPANY_USER_STATUS_INVALID = 'The request body must contain an "isActive" boolean.';
 
@@ -147,6 +180,12 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
     public const string RESPONSE_DETAILS_UNKNOWN_LOCALE = 'Locale "%s" does not exist.';
 
     public const string RESPONSE_DETAILS_COMPANY_NOT_FOUND = 'Company with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_ROLE_NOT_FOUND = 'Company role with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_COMPANY_ROLE_VALIDATION = 'The company role request could not be processed.';
+
+    public const string RESPONSE_DETAILS_COMPANY_ROLE_COMPANY_IMMUTABLE = 'The "companyUuid" field cannot be changed on an existing company role.';
 
     public const string RESPONSE_DETAILS_COMPANY_VALIDATION = 'The company request could not be processed.';
 
@@ -188,6 +227,16 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
             static::ERROR_MESSAGE_COUNTRY_UNKNOWN => static::RESPONSE_CODE_UNKNOWN_COUNTRY,
             static::ERROR_MESSAGE_REGION_UNKNOWN => static::RESPONSE_CODE_UNKNOWN_REGION,
             static::ERROR_MESSAGE_REGION_NOT_IN_COUNTRY => static::RESPONSE_CODE_REGION_NOT_IN_COUNTRY,
+            static::ERROR_MESSAGE_COMPANY_ROLE_NAME_REQUIRED => static::RESPONSE_CODE_COMPANY_ROLE_VALIDATION,
+            static::ERROR_MESSAGE_COMPANY_ROLE_NAME_TOO_LONG => static::RESPONSE_CODE_COMPANY_ROLE_VALIDATION,
+            static::ERROR_MESSAGE_COMPANY_ROLE_NAME_NOT_UNIQUE => static::RESPONSE_CODE_COMPANY_ROLE_VALIDATION,
+            static::ERROR_MESSAGE_COMPANY_ROLE_COMPANY_REQUIRED => static::RESPONSE_CODE_COMPANY_ROLE_VALIDATION,
+            static::ERROR_MESSAGE_COMPANY_ROLE_NOT_FOUND => static::RESPONSE_CODE_COMPANY_ROLE_NOT_FOUND,
+            static::ERROR_MESSAGE_COMPANY_ROLE_UNKNOWN_PERMISSION => static::RESPONSE_CODE_UNKNOWN_PERMISSION,
+            static::ERROR_MESSAGE_COMPANY_ROLE_COMPANY_IMMUTABLE => static::RESPONSE_CODE_COMPANY_ROLE_COMPANY_IMMUTABLE,
+            static::ERROR_MESSAGE_COMPANY_ROLE_DEFAULT_CANNOT_BE_CLEARED => static::RESPONSE_CODE_COMPANY_ROLE_DEFAULT_CANNOT_BE_CLEARED,
+            static::ERROR_MESSAGE_COMPANY_ROLE_DELETE_IS_DEFAULT => static::RESPONSE_CODE_COMPANY_ROLE_IS_DEFAULT,
+            static::ERROR_MESSAGE_COMPANY_ROLE_DELETE_HAS_USERS => static::RESPONSE_CODE_COMPANY_ROLE_HAS_COMPANY_USERS,
             static::ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS => static::RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS,
             static::ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE => static::RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE,
         ];

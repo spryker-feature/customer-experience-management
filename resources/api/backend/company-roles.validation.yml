@@ -1,0 +1,35 @@
+post:
+    name:
+        - NotBlank
+        - Length:
+              max: 255
+
+    companyUuid:
+        - NotBlank
+        - Uuid
+
+    permissionKeys:
+        - Optional:
+              constraints:
+                  - All:
+                        constraints:
+                            - NotBlank
+                            - Length:
+                                  max: 255
+
+patch:
+    name:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 255
+
+    permissionKeys:
+        - Optional:
+              constraints:
+                  - All:
+                        constraints:
+                            - NotBlank
+                            - Length:
+                                  max: 255

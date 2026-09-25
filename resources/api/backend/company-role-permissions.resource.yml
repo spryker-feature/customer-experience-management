@@ -1,0 +1,89 @@
+resource:
+    name: CompanyRolePermissions
+    shortName: company-role-permissions
+    description: 'The permissions this installation offers, read-only. Assign them to a company role through the company role resource.'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CompanyRolePermissionsBackendProvider
+
+    paginationEnabled: true
+    paginationItemsPerPage: 50
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: GetCollection
+          description: >-
+              Retrieve the permissions a company role may hold, independent of any company role.
+              Pagination (JSON:API): `page[limit]` (default 50), `page[offset]` (default 0); the
+              pagination summary is returned as top-level `meta.pagination` with
+              `links.first/last/prev/next`.
+              Filtering: `filter[company-role-permissions.name]` matches a localized permission name partially
+              and case-insensitively. Because the name is translated, the locale it is matched in is
+              given separately as `filter[company-role-permissions.localeName]`; without it a permission matches
+              when the term is found in any of its locales.
+          openapiContext:
+              summary: 'List the available permissions'
+              parameters:
+                  - name: 'filter[company-role-permissions.name]'
+                    in: query
+                    required: false
+                    description: 'Return only permissions whose localized name contains this fragment, matched case-insensitively.'
+                    schema:
+                        type: string
+                    example: 'company'
+                  - name: 'filter[company-role-permissions.localeName]'
+                    in: query
+                    required: false
+                    description: 'Locale the name filter is matched in. Omit it to match the fragment in any available locale; an unknown locale matches nothing.'
+                    schema:
+                        type: string
+                    example: 'de_DE'
+              responses:
+                  200:
+                      description: 'Permission collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Malformed pagination parameter.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+
+    properties:
+        key:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            description: "Unique permission identifier. Assign a permission to a company role by putting this value in the company role's permissionKeys."
+            openapiContext:
+                example: 'AddCompanyUserPermissionPlugin'
+
+        localizedNames:
+            type: array
+            writable: false
+            readable: true
+            description: >-
+                Human-readable permission name, one entry per locale available in this installation.
+                The name is translatable content, so every locale is returned and the client picks
+                the one it wants to display — the request locale narrows error messages, not
+                content. A locale with no translation for this permission carries the permission's
+                own key instead of an empty name.
+            items:
+                type: object
+                properties:
+                    localeName:
+                        type: string
+                        description: 'Locale this entry applies to.'
+                        openapiContext:
+                            example: 'de_DE'
+                    name:
+                        type: string
+                        description: 'Permission name in that locale.'
+                        openapiContext:
+                            example: 'Firmennutzer hinzufügen'
+            openapiContext:
+                example:
+                    - localeName: 'en_US'
+                      name: 'Add company users'
+                    - localeName: 'de_DE'
+                      name: 'Firmennutzer hinzufügen'

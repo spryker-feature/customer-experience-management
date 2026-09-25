@@ -1,0 +1,233 @@
+resource:
+    name: CompanyRoles
+    shortName: company-roles
+    description: "Company role management: list, read, create, update and delete company roles, handle a company's default role, and assign permissions to a role."
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CompanyRolesBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CompanyRolesBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: GetCollection
+          openapiContext:
+              summary: 'List company roles'
+              parameters:
+                  - name: 'q'
+                    in: query
+                    required: false
+                    description: 'Free-text search, matched against the role name and the company name together.'
+                    schema:
+                        type: string
+                    example: 'approver'
+                  - name: 'filter[company-roles.name]'
+                    in: query
+                    required: false
+                    description: 'Return only company roles whose name contains this fragment.'
+                    schema:
+                        type: string
+                    example: 'Approvers'
+                  - name: 'filter[company-roles.companyName]'
+                    in: query
+                    required: false
+                    description: 'Return only company roles whose owning company name contains this fragment.'
+                    schema:
+                        type: string
+                    example: 'Acme'
+                  - name: 'filter[company-roles.companyUuid]'
+                    in: query
+                    required: false
+                    description: 'Return only the company roles of this company (exact match).'
+                    schema:
+                        type: string
+                    example: 'a0e4d1c8-6b47-5f19-9c2d-3f8b1e7a5d40'
+                  - name: 'filter[company-roles.isDefault]'
+                    in: query
+                    required: false
+                    description: 'Return only the default company roles, or only the non-default ones.'
+                    schema:
+                        type: boolean
+                    example: 'true'
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Any other field returns 400 (error code 1203).'
+                    schema:
+                        type: string
+                        enum: ['name', '-name', 'companyName', '-companyName', 'isDefault', '-isDefault']
+                    example: 'name'
+              responses:
+                  200:
+                      description: 'Company role collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203) or unsupported filter field (error code 1215).'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+          description: >-
+              Retrieve a paginated, filterable company role collection.
+              Pagination (JSON:API): `page[limit]` (default 10), `page[offset]` (default 0); the
+              pagination summary is returned as top-level `meta.pagination` with
+              `links.first/last/prev/next`.
+              Free-text search: `q`, matched against the role name and the company name together.
+              Filters follow the JSON:API `filter[company-roles.<property>]` form and are combined
+              with each other: `filter[company-roles.name]` (partial, the role name),
+              `filter[company-roles.companyName]` (partial, the owning company's name),
+              `filter[company-roles.companyUuid]` (exact, narrows the collection to one company),
+              `filter[company-roles.isDefault]` (boolean).
+              Sorting: `sort` accepts name, companyName or isDefault, prefixed with `-` for
+              descending.
+
+        - type: Get
+          description: 'Retrieve a single company role by uuid'
+          openapiContext:
+              summary: 'Retrieve a company role'
+              responses:
+                  200:
+                      description: 'Company role returned.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company role matches the uuid (error code 1218).'
+
+        - type: Post
+          description: >-
+              Create a company role for the given company, optionally assigning permissions and
+              making it the company's default role.
+          deserialize: true
+          openapiContext:
+              summary: 'Create a company role'
+              responses:
+                  201:
+                      description: "Company role created. Setting isDefault demotes the company's previous default role."
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company matches companyUuid (error code 1213).'
+                  422:
+                      description: 'Schema validation failed (error code 901); or the role name is already used within the company or a permission key is unknown (error codes 1230, 1233).'
+
+        - type: Patch
+          description: >-
+              Partially update a company role. Only the properties present in the payload are
+              applied; the attached permissions are preserved unless permissionKeys is sent.
+          deserialize: true
+          extraProperties:
+              read: false
+          openapiContext:
+              summary: 'Update a company role'
+              responses:
+                  200:
+                      description: 'Company role updated.'
+                  400:
+                      description: 'Malformed request body: unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company role matches the uuid (error code 1218).'
+                  422:
+                      description: 'Schema validation failed (error code 901); or companyUuid was sent (error code 1235), isDefault was cleared on the current default role (error code 1234), the name is already used within the company, or a permission key is unknown (error codes 1230, 1233).'
+
+        - type: Delete
+          description: >-
+              Delete a company role. Refused while the role is the company's default role, or while
+              company users are still assigned to it.
+          openapiContext:
+              summary: 'Delete a company role'
+              responses:
+                  204:
+                      description: 'Company role deleted.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no ACL access to this resource.'
+                  404:
+                      description: 'No company role matches the uuid (error code 1218).'
+                  422:
+                      description: 'The role is the company default (error code 1231) or still has company users assigned (error code 1232).'
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            description: 'Unique company role identifier. Addresses the role in every operation.'
+            openapiContext:
+                example: '50c647a4-d27f-5d82-a587-1d0b7cc6b58d'
+
+        name:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Company role name. Must be unique within the company.'
+            openapiContext:
+                example: 'Approver'
+
+        isDefault:
+            type: boolean
+            writable: true
+            readable: true
+            description: >-
+                Whether this is the company's default role, which every newly created company user
+                of that company is given.
+                Defaults to `false` — including for the first role created for a company, which is
+                not promoted automatically. A company's default role is the one created together
+                with the company itself, so a company whose roles are all created through this
+                endpoint has no default until one is requested explicitly.
+                Sending `true` promotes this role and demotes the company's previous default, so a
+                company never holds more than one. Sending `false` on the role that currently holds
+                the flag is refused: move the default to another role instead, which leaves the
+                company with exactly one at all times.
+            openapiContext:
+                example: 'false'
+
+        companyUuid:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: >-
+                Uuid of the company the role belongs to. Required on create, and immutable
+                afterwards: a role cannot be moved to another company, so sending a different value
+                on an update is rejected.
+            openapiContext:
+                example: 'a0e4d1c8-6b47-5f19-9c2d-3f8b1e7a5d40'
+
+        companyName:
+            type: string
+            writable: false
+            readable: true
+            description: 'Name of the company the role belongs to. Also what `filter[company-roles.companyName]`, the companyName sort and the free-text search match against.'
+            openapiContext:
+                example: 'Spryker Systems GmbH'
+
+        permissionKeys:
+            type: array
+            writable: true
+            readable: true
+            required: false
+            nullable: true
+            description: >-
+                Keys of the permissions this role holds, as listed by `GET /company-role-permissions`.
+                Sending the property replaces the role's whole permission set: a key present in the
+                array is assigned, one absent from it is unassigned, and an empty array detaches
+                every permission. Omitting the property on an update leaves the stored set
+                untouched, so a request that changes only the name keeps the permissions.
+                The permissions themselves cannot be created, changed or deleted through this API.
+            openapiContext:
+                type: array
+                items:
+                    type: string
+                example: ['AddCompanyUserPermissionPlugin', 'ApproveQuotePermissionPlugin']
