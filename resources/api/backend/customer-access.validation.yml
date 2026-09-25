@@ -1,0 +1,19 @@
+patch:
+    contentTypeAccess:
+        - NotBlank
+        - Count:
+              min: 1
+        - All:
+              constraints:
+                  - Collection:
+                        allowExtraFields: false
+                        allowMissingFields: false
+                        fields:
+                            contentType:
+                                - NotBlank
+                                - Length:
+                                      max: 100
+                            isRestricted:
+                                - NotNull
+                                - Type:
+                                      type: bool

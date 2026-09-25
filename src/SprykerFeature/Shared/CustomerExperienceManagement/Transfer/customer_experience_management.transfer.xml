@@ -213,4 +213,41 @@
 
     <transfer name="Country">
     </transfer>
+
+    <transfer name="CustomerGroupCollectionResponse" strict="true">
+    </transfer>
+
+    <transfer name="CustomerCollection">
+    </transfer>
+
+    <transfer name="CustomerGroupCollection">
+    </transfer>
+
+    <transfer name="CustomerGroupConditions" strict="true">
+    </transfer>
+
+    <transfer name="CustomerGroupCriteria" strict="true">
+    </transfer>
+
+    <transfer name="CustomerGroupCustomerConditions" strict="true">
+    </transfer>
+
+    <transfer name="CustomerGroupCustomerCriteria" strict="true">
+    </transfer>
+
+    <transfer name="CustomerGroup">
+    </transfer>
+
+    <transfer name="ContentTypeAccess">
+    </transfer>
+
+    <transfer name="CustomerAccess">
+    </transfer>
+
+    <transfer name="CustomerGroupCollectionRequest" strict="true">
+    </transfer>
+
+    <transfer name="CustomerGroupToCustomerAssignment">
+    </transfer>
+
 </transfers>

@@ -1,0 +1,217 @@
+resource:
+    name: CustomerGroups
+    shortName: customer-groups
+    description: 'Customer group management (list, read, create, update incl. assignment replacement, delete)'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerGroupsBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CustomerGroupsBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: GetCollection
+          description: >-
+              Retrieve a paginated, filterable customer group collection.
+              Pagination (JSON:API): `page[limit]` (default 10), `page[offset]` (default 0); the
+              pagination summary is returned as top-level `meta.pagination` with `links.first/last/prev/next`.
+              Free-text search: `q`, OR-matched against name and description.
+              Filters follow the JSON:API `filter[customer-groups.<property>]` form:
+              `filter[customer-groups.name]` (exact, case-insensitive).
+              Sorting: `sort` accepts name or createdAt, prefixed with `-` for descending; an
+              unsupported field returns 400.
+              The members of a group are neither part of this response nor available as an
+              `include`; read them through `GET /customer-groups/{uuid}/customers`.
+          openapiContext:
+              summary: 'List customer groups'
+              parameters:
+                  - name: 'q'
+                    in: query
+                    required: false
+                    description: 'Free-text search, OR-matched against name and description.'
+                    schema:
+                        type: string
+                    example: 'wholesale'
+                  - name: 'filter[customer-groups.name]'
+                    in: query
+                    required: false
+                    description: 'Return only the customer group with this name (exact match, case-insensitive).'
+                    schema:
+                        type: string
+                    example: 'Wholesale partners'
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Any other field returns 400 (error code 1203).'
+                    schema:
+                        type: string
+                        enum: ['name', '-name', 'createdAt', '-createdAt']
+                    example: 'name'
+              responses:
+                  200:
+                      description: 'Customer group collection returned, with JSON:API pagination links.'
+                  400:
+                      description: 'Unsupported sort field (error code 1203).'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+
+        - type: Get
+          description: 'Retrieve a single customer group by its uuid.'
+          openapiContext:
+              summary: 'Retrieve a customer group'
+              responses:
+                  200:
+                      description: 'Customer group returned.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  404:
+                      description: 'No customer group matches the uuid (error code 1222).'
+
+        - type: Post
+          description: >-
+              Create a customer group.
+              `name` is required and must not already be taken. The uniqueness check is
+              case-insensitive: with a group named `group1` already present, `Group1` is rejected.
+              Send `customerReferences` to assign customers in the same request, at most 1000 of
+              them. Omit it, or send an empty array, to create the group empty. Every reference
+              must belong to an existing customer, and the list must not contain duplicates; if
+              either check fails the whole request is rejected and no group is created.
+              The customer accounts themselves are neither read back nor modified, and no mail is
+              sent.
+          deserialize: true
+          openapiContext:
+              summary: 'Create a customer group'
+              responses:
+                  201:
+                      description: 'Customer group created, with the customers from `customerReferences` assigned to it.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  422:
+                      description: >-
+                          The request was rejected and nothing was saved — a field failed
+                          validation, the name is already taken (error code 1223), or one or more
+                          customer references are unknown (error code 1224, one `errors[]` entry
+                          per unknown reference).
+
+        - type: Patch
+          description: >-
+              Update the customer group addressed by the uuid. Only the properties you send are
+              applied; anything you leave out stays as it is.
+              Renaming is allowed and does not change the uuid, so existing links keep working.
+              The new name must not be taken by another group, compared case-insensitively.
+              Manage customer assignments through the assignment resource:
+              `PATCH /customer-groups/{uuid}/customers` replaces the whole set (an empty array
+              removes every member), `POST /customer-groups/{uuid}/customers` adds to it, and
+              `DELETE /customer-groups/{uuid}/customers/{customerReference}` removes a single one.
+          deserialize: true
+          extraProperties:
+              read: false
+          openapiContext:
+              summary: 'Update a customer group'
+              responses:
+                  200:
+                      description: 'Customer group updated. Only the properties present in the payload are applied.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  404:
+                      description: 'No customer group matches the uuid (error code 1222).'
+                  422:
+                      description: >-
+                          The request was rejected and nothing was saved — a field failed
+                          validation, or the name is already taken by another group (error code
+                          1223).
+
+        - type: Delete
+          description: >-
+              Delete the customer group. Its assignments go with it; the customers themselves are
+              kept, along with every other group they belong to.
+              Discounts that target this group simply stop matching it — they are neither deleted
+              nor rewritten, so review them afterwards.
+          openapiContext:
+              summary: 'Delete a customer group'
+              responses:
+                  204:
+                      description: 'Customer group deleted. The customers are kept.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  404:
+                      description: 'No customer group matches the uuid (error code 1222).'
+
+    properties:
+        uuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: true
+            description: 'Public unique customer group identifier. The group database id is never exposed. Derived deterministically from the group id, so it is stable for the lifetime of the row — renaming the group does not change it.'
+            openapiContext:
+                example: '4b1e6a02-9f37-5c48-b6d1-2e8a70c9f4a5'
+
+        name:
+            type: string
+            writable: true
+            readable: true
+            required: true
+            description: 'Name of the customer group. Unique across all customer groups; uniqueness is validated case-insensitively.'
+            openapiContext:
+                example: 'Wholesale partners'
+
+        description:
+            type: string
+            writable: true
+            readable: true
+            required: false
+            nullable: true
+            description: 'Free-text note about what the group is for. At most 255 characters.'
+            openapiContext:
+                example: 'Customers eligible for wholesale pricing tiers.'
+
+        createdAt:
+            type: string
+            writable: false
+            readable: true
+            required: false
+            nullable: true
+            description: 'When the group was created, in ISO 8601. Read-only.'
+            openapiContext:
+                example: '2026-09-10T08:15:00+00:00'
+
+        customerReferences:
+            type: array
+            writable: true
+            readable: false
+            required: false
+            nullable: true
+            description: >-
+                Members to assign to the new group, by customer reference; at most 1000 per
+                request.
+                On create: the customers to assign. Omit it or send an empty array to create the
+                group empty.
+                On update: ignored — membership is not written through this resource. Use
+                `PATCH /customer-groups/{uuid}/customers` to replace the whole set,
+                `POST /customer-groups/{uuid}/customers` to add, and
+                `DELETE /customer-groups/{uuid}/customers/{customerReference}` to remove one.
+                Write-only, and never returned. Read the assignment through
+                `GET /customer-groups/{uuid}/customers`, which is paginated and therefore not
+                limited to 1000.
+            openapiContext:
+                items:
+                    type: string
+                example: ['DE--1', 'DE--2']

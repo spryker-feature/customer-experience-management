@@ -58,7 +58,7 @@ resource:
                   200:
                       description: 'Company collection returned, with JSON:API pagination links.'
                   400:
-                      description: 'Unsupported sort field (error code 1203), a filter addressing a property other than name (error code 1215), or a filter key that is not in `filter[companies.<property>]` form (error code 011).'
+                      description: 'Unsupported sort field (error code 1203), a filter addressing a property other than name (error code 1215), or a filter key that is not in `filter[companies.<property>]` form (error code 1215).'
                   401:
                       description: 'Missing or expired access token.'
 

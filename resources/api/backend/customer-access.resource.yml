@@ -1,0 +1,105 @@
+resource:
+    name: CustomerAccess
+    shortName: customer-access
+    description: 'Shop-wide control over which content types are hidden from customers who are not logged in (read, update)'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerAccessBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CustomerAccessBackendProcessor
+
+    paginationEnabled: false
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: Get
+          name: getCustomerAccess
+          description: >-
+              Retrieve the current setting. Every content type configured for the project is
+              returned, each with its own `isRestricted` flag — restricted means the content is
+              hidden from customers who are not logged in.
+              This is one shop-wide setting rather than a per-customer one, so the resource has a
+              single item and no identifier.
+          uriTemplate: '/customer-access'
+          normalizationContext:
+              gen_id: false
+          openapiContext:
+              summary: 'Retrieve the unauthenticated customer access settings'
+              responses:
+                  200:
+                      description: 'Current settings returned, one entry per configured content type.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+
+        - type: Patch
+          description: >-
+              Change the setting. `contentTypeAccess` is a partial list: send only the content
+              types you want to change.
+              A content type you leave out of the array keeps its current flag — it is not reset
+              and not removed.
+              Within an entry, both `contentType` and `isRestricted` are required and neither has
+              a default. An entry that omits `isRestricted` is rejected with 422; it does not fall
+              back to `false` and does not retain the current value. Sending the flag a content
+              type already has succeeds and changes nothing.
+              Every `contentType` must be one of the content types configured for this project. An
+              unknown one is rejected and nothing is saved, rather than being added as a new
+              content type. The same content type may appear only once per request.
+              The change takes effect on the storefront once it has been published to storage; the
+              publish is triggered by the save, so no extra call is needed.
+          name: updateCustomerAccess
+          uriTemplate: '/customer-access'
+          deserialize: true
+          read: false
+          status: 200
+          normalizationContext:
+              gen_id: false
+          openapiContext:
+              summary: 'Update the unauthenticated customer access settings'
+              responses:
+                  200:
+                      description: 'Settings updated; the full current setting is returned, including the content types left untouched.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  422:
+                      description: >-
+                          The request was rejected and nothing was saved — an entry is missing
+                          `contentType` or `isRestricted`, a content type is not configured for
+                          this project (error code 1226), or the same content type was sent twice
+                          (error code 1227).
+
+    properties:
+        contentTypeAccess:
+            type: array
+            writable: true
+            readable: true
+            required: true
+            description: >-
+                One entry per content type. On read, every content type configured for the project
+                is present. On update, send only the entries you want to change — the ones you
+                leave out keep their current value.
+            items:
+                type: object
+                properties:
+                    contentType:
+                        type: string
+                        writable: true
+                        readable: true
+                        required: true
+                        description: 'Identifier of the content type. Must be one of the content types configured for this project; unknown values are rejected rather than created.'
+                        openapiContext:
+                            example: 'price'
+                            schema:
+                                enum: ['price', 'order-place-submit', 'add-to-cart', 'wishlist', 'shopping-list']
+                    isRestricted:
+                        type: boolean
+                        writable: true
+                        readable: true
+                        required: true
+                        description: 'true hides this content from customers who are not logged in; false makes it visible to everyone. Required in every entry sent — there is no default, and omitting it is an error rather than a way to keep the current value.'
+                        openapiContext:
+                            example: true

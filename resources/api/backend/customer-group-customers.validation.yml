@@ -1,0 +1,24 @@
+post:
+    customerReferences:
+        - NotBlank
+        - Count:
+              min: 1
+              max: 1000
+        - Unique
+        - All:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 255
+
+patch:
+    customerReferences:
+        - NotNull
+        - Count:
+              max: 1000
+        - Unique
+        - All:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 255

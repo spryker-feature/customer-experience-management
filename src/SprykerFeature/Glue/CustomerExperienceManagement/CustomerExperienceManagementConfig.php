@@ -54,6 +54,16 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
      */
     protected const string ERROR_MESSAGE_REGION_NOT_IN_COUNTRY = 'country.validation.region_not_in_country';
 
+    /**
+     * @uses \Spryker\Zed\CustomerGroup\Business\Validator\CustomerGroupNameUniquenessValidator::GLOSSARY_KEY_ERROR_NAME_TAKEN
+     */
+    public const string ERROR_MESSAGE_CUSTOMER_GROUP_NAME_TAKEN = 'message.customer_group.validation.name_taken';
+
+    /**
+     * @uses \Spryker\Zed\CustomerGroup\Business\Validator\CustomerGroupCustomerExistenceValidator::GLOSSARY_KEY_ERROR_CUSTOMER_NOT_FOUND
+     */
+    public const string ERROR_MESSAGE_CUSTOMER_GROUP_CUSTOMER_NOT_FOUND = 'message.customer_group.validation.customer_not_found';
+
     protected const string ERROR_MESSAGE_COMPANY_ROLE_NAME_REQUIRED = 'A company role name is required.';
 
     protected const string ERROR_MESSAGE_COMPANY_ROLE_NAME_TOO_LONG = 'The company role name must not exceed 255 characters.';
@@ -136,6 +146,32 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
     public const string RESPONSE_CODE_COMPANY_USER_CUSTOMER_MISSING = '1220';
 
     public const string RESPONSE_CODE_COMPANY_USER_DEFAULT_INVALID = '1221';
+
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_NOT_FOUND = '1222';
+
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_NAME_TAKEN = '1223';
+
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_CUSTOMER_NOT_FOUND = '1224';
+
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_ASSIGNMENT_NOT_FOUND = '1225';
+
+    public const string RESPONSE_CODE_CUSTOMER_ACCESS_UNKNOWN_CONTENT_TYPE = '1226';
+
+    public const string RESPONSE_CODE_CUSTOMER_ACCESS_DUPLICATE_CONTENT_TYPE = '1227';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_NOT_FOUND = 'Customer group with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_VALIDATION = 'The customer group request could not be processed.';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_NAME_TAKEN = 'Customer group name "%s" is already taken. Names are compared case-insensitively.';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_CUSTOMER_NOT_FOUND = 'Customer with reference "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_ASSIGNMENT_NOT_FOUND = 'Customer "%s" is not a member of customer group "%s".';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_ACCESS_UNKNOWN_CONTENT_TYPE = 'Content type "%s" is not configured for this project. Configured content types: %s.';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_ACCESS_DUPLICATE_CONTENT_TYPE = 'Content type "%s" was sent more than once.';
 
     public const string RESPONSE_CODE_COMPANY_ROLE_VALIDATION = '1230';
 
@@ -239,6 +275,8 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
             static::ERROR_MESSAGE_COMPANY_ROLE_DELETE_HAS_USERS => static::RESPONSE_CODE_COMPANY_ROLE_HAS_COMPANY_USERS,
             static::ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS => static::RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HAS_RELATED_USERS,
             static::ERROR_MESSAGE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE => static::RESPONSE_CODE_COMPANY_BUSINESS_UNIT_HIERARCHY_CYCLE,
+            static::ERROR_MESSAGE_CUSTOMER_GROUP_NAME_TAKEN => static::RESPONSE_CODE_CUSTOMER_GROUP_NAME_TAKEN,
+            static::ERROR_MESSAGE_CUSTOMER_GROUP_CUSTOMER_NOT_FOUND => static::RESPONSE_CODE_CUSTOMER_GROUP_CUSTOMER_NOT_FOUND,
         ];
     }
 }

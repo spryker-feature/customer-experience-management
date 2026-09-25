@@ -1,6 +1,6 @@
 resource:
     name: CustomersNotes
-    shortName: notes
+    shortName: customer-notes
     description: "Customer note timeline for the Back Office (list a customer's notes, append a note attributed to the acting operator)"
 
     provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerNotesBackendProvider

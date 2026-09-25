@@ -1,0 +1,33 @@
+post:
+    name:
+        - NotBlank
+        - Length:
+              max: 70
+
+    description:
+        - Length:
+              max: 255
+
+    customerReferences:
+        - Count:
+              max: 1000
+        - Unique
+        - All:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 255
+
+patch:
+    name:
+        - Optional:
+              constraints:
+                  - NotBlank
+                  - Length:
+                        max: 70
+
+    description:
+        - Optional:
+              constraints:
+                  - Length:
+                        max: 255
