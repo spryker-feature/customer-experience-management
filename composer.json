@@ -7,9 +7,9 @@
         "php": ">=8.3",
         "spryker/business-on-behalf": "^1.0.0",
         "spryker/company": "^1.11.0",
-        "spryker/company-business-unit": "^2.22.0",
+        "spryker/company-business-unit": "^2.24.0",
         "spryker/company-role": "^1.14.0",
-        "spryker/company-unit-address": "^1.19.0",
+        "spryker/company-unit-address": "^1.20.0",
         "spryker/company-unit-address-label": "^1.6.0",
         "spryker/company-user": "^2.24.0",
         "spryker/country": "^3.1.0 || ^4.0.0",
@@ -37,6 +37,7 @@
     },
     "autoload": {
         "psr-4": {
+            "SprykerFeatureTest\\Glue\\CustomerExperienceManagement\\Helper\\": "tests/SprykerFeatureTest/Glue/CustomerExperienceManagement/_support/Helper/",
             "SprykerFeature\\": "src/SprykerFeature/"
         }
     },
