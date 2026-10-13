@@ -15,6 +15,7 @@ use Generated\Shared\Transfer\CompanyUnitAddressCollectionTransfer;
 use Generated\Shared\Transfer\CompanyUnitAddressCriteriaFilterTransfer;
 use Generated\Shared\Transfer\CompanyUnitAddressTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
+use Spryker\ApiPlatform\State\Request\CollectionQueryReaderInterface;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\CompanyUnitAddress\Business\CompanyUnitAddressFacadeInterface;
 use Spryker\Zed\CompanyUnitAddress\CompanyUnitAddressConfig;
@@ -23,7 +24,6 @@ use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CompanyB
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CompanyBusinessUnitReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CompanyReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CompanyUnitAddressReaderInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
 use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 
@@ -174,6 +174,7 @@ class CompanyBusinessUnitAddressesBackendProvider extends AbstractBackendProvide
         $sortTransfers = $this->collectionQueryReader->getSortCollection(
             $this->getRequest(),
             array_keys($this->companyUnitAddressConfig->getCompanyUnitAddressCollectionSortableFieldMap()),
+            CustomerExperienceManagementConfig::RESPONSE_CODE_INVALID_SORT_FIELD,
         );
 
         foreach ($sortTransfers as $sortTransfer) {

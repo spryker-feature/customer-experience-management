@@ -13,12 +13,12 @@ use Generated\Api\Backend\CompanyBusinessUnitsBackendResource;
 use Generated\Shared\Transfer\CompanyBusinessUnitCriteriaFilterTransfer;
 use Generated\Shared\Transfer\CompanyBusinessUnitTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
+use Spryker\ApiPlatform\State\Request\CollectionQueryReaderInterface;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\CompanyBusinessUnit\Business\CompanyBusinessUnitFacadeInterface;
 use Spryker\Zed\CompanyBusinessUnit\CompanyBusinessUnitConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Exception\CompanyBusinessUnitsBackendExceptionFactory;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CompanyBusinessUnitResourceMapperInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
 use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 
@@ -93,6 +93,7 @@ class CompanyBusinessUnitsBackendProvider extends AbstractBackendProvider
         $sortTransfers = $this->collectionQueryReader->getSortCollection(
             $this->getRequest(),
             array_keys($this->companyBusinessUnitConfig->getCompanyBusinessUnitCollectionSortableFieldMap()),
+            CustomerExperienceManagementConfig::RESPONSE_CODE_INVALID_SORT_FIELD,
         );
 
         foreach ($sortTransfers as $sortTransfer) {

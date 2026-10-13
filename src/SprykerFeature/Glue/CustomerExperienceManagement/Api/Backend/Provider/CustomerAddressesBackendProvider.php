@@ -13,12 +13,13 @@ use Generated\Api\Backend\CustomersAddressesBackendResource;
 use Generated\Shared\Transfer\AddressTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
+use Spryker\ApiPlatform\State\Request\CollectionQueryReaderInterface;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\Customer\CustomerConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CustomerAddressResourceMapperInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerAddressReaderInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
+use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 
 class CustomerAddressesBackendProvider extends AbstractBackendProvider
 {
@@ -49,6 +50,7 @@ class CustomerAddressesBackendProvider extends AbstractBackendProvider
             $this->collectionQueryReader->getSortCollection(
                 $this->getRequest(),
                 array_keys($this->customerConfig->getAddressCollectionSortableFieldMap()),
+                CustomerExperienceManagementConfig::RESPONSE_CODE_INVALID_SORT_FIELD,
             ),
         );
 

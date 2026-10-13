@@ -15,13 +15,14 @@ use Generated\Shared\Transfer\CustomerTransfer;
 use Generated\Shared\Transfer\PaginationTransfer;
 use Generated\Shared\Transfer\SpyCustomerNoteEntityTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
+use Spryker\ApiPlatform\State\Request\CollectionQueryReaderInterface;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\CustomerNote\CustomerNoteConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CustomerNoteResourceMapperInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerNoteReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerReaderInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
+use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 
 class CustomerNotesBackendProvider extends AbstractBackendProvider
 {
@@ -121,6 +122,7 @@ class CustomerNotesBackendProvider extends AbstractBackendProvider
         return $this->collectionQueryReader->getSortCollection(
             $this->getRequest(),
             array_keys($this->customerNoteConfig->getCustomerNoteCollectionSortableFieldMap()),
+            CustomerExperienceManagementConfig::RESPONSE_CODE_INVALID_SORT_FIELD,
         );
     }
 

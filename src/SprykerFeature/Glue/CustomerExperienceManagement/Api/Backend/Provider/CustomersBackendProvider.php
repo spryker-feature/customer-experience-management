@@ -15,12 +15,13 @@ use Generated\Shared\Transfer\CustomerConditionsTransfer;
 use Generated\Shared\Transfer\CustomerCriteriaSearchTermsTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
+use Spryker\ApiPlatform\State\Request\CollectionQueryReaderInterface;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use Spryker\Zed\Customer\CustomerConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Exception\CustomersBackendExceptionFactory;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CustomerResourceMapperInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
+use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 
 class CustomersBackendProvider extends AbstractBackendProvider
 {
@@ -102,6 +103,7 @@ class CustomersBackendProvider extends AbstractBackendProvider
         $sortTransfers = $this->collectionQueryReader->getSortCollection(
             $this->getRequest(),
             array_keys($this->customerConfig->getCustomerCollectionSortableFieldMap()),
+            CustomerExperienceManagementConfig::RESPONSE_CODE_INVALID_SORT_FIELD,
         );
 
         foreach ($sortTransfers as $sortTransfer) {

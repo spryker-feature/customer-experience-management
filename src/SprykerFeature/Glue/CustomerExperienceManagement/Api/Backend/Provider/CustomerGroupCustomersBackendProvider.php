@@ -14,12 +14,13 @@ use Generated\Shared\Transfer\CustomerGroupCustomerConditionsTransfer;
 use Generated\Shared\Transfer\CustomerGroupCustomerCriteriaTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
+use Spryker\ApiPlatform\State\Request\CollectionQueryReaderInterface;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\CustomerGroup\CustomerGroupConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CustomerGroupResourceMapperInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CustomerGroupReaderInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
+use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 
 class CustomerGroupCustomersBackendProvider extends AbstractBackendProvider
 {
@@ -90,6 +91,7 @@ class CustomerGroupCustomersBackendProvider extends AbstractBackendProvider
         return $this->collectionQueryReader->getSortCollection(
             $this->getRequest(),
             array_keys($this->customerGroupConfig->getCustomerGroupCustomerCollectionSortableFieldMap()),
+            CustomerExperienceManagementConfig::RESPONSE_CODE_INVALID_SORT_FIELD,
         );
     }
 

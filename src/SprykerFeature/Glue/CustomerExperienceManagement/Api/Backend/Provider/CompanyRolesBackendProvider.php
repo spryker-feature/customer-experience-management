@@ -14,14 +14,15 @@ use Generated\Shared\Transfer\CompanyRoleCollectionCriteriaTransfer;
 use Generated\Shared\Transfer\CompanyRoleConditionsTransfer;
 use Generated\Shared\Transfer\CompanyRoleTransfer;
 use Spryker\ApiPlatform\State\Provider\AbstractBackendProvider;
+use Spryker\ApiPlatform\State\Request\CollectionQueryReaderInterface;
 use Spryker\Service\Serializer\SerializerServiceInterface;
 use Spryker\Zed\CompanyRole\Business\CompanyRoleFacadeInterface;
 use Spryker\Zed\CompanyRole\CompanyRoleConfig;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Exception\CompanyRolesBackendExceptionFactory;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper\CompanyRoleResourceMapperInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Reader\CompanyRoleReaderInterface;
-use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Request\CollectionQueryReaderInterface;
 use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Trait\UuidUriVariableAwareTrait;
+use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 
 class CompanyRolesBackendProvider extends AbstractBackendProvider
 {
@@ -89,6 +90,7 @@ class CompanyRolesBackendProvider extends AbstractBackendProvider
         $sortTransfers = $this->collectionQueryReader->getSortCollection(
             $this->getRequest(),
             array_keys($this->companyRoleConfig->getCompanyRoleCollectionSortableFieldMap()),
+            CustomerExperienceManagementConfig::RESPONSE_CODE_INVALID_SORT_FIELD,
         );
 
         foreach ($sortTransfers as $sortTransfer) {
