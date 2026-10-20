@@ -1,0 +1,28 @@
+Companies,Unternehmen
+"Business Units",Geschäftseinheiten
+"Available companies","Verfügbare Unternehmen"
+"Companies to be assigned","Zuzuweisende Unternehmen"
+"Assigned companies","Zugewiesene Unternehmen"
+"Companies to be de-assigned","Zu entfernende Unternehmen"
+"Available business units","Verfügbare Geschäftseinheiten"
+"Business units to be assigned","Zuzuweisende Geschäftseinheiten"
+"Assigned business units","Zugewiesene Geschäftseinheiten"
+"Business units to be de-assigned","Zu entfernende Geschäftseinheiten"
+ID,ID
+Company,Unternehmen
+"Business unit",Geschäftseinheit
+Customers,Kunden
+Select,Auswählen
+Selected,Ausgewählt
+"The selected IDs are not valid.","Die ausgewählten IDs sind ungültig."
+"Unknown company IDs: %ids%.","Unbekannte Unternehmens-IDs: %ids%."
+"Unknown business unit IDs: %ids%.","Unbekannte Geschäftseinheits-IDs: %ids%."
+"Company IDs selected to be both assigned and de-assigned: %ids%.","Unternehmens-IDs, die zugleich zugewiesen und entfernt werden sollen: %ids%."
+"Company IDs already assigned to the customer group: %ids%.","Unternehmens-IDs, die der Kundengruppe bereits zugewiesen sind: %ids%."
+"Company IDs not assigned to the customer group: %ids%.","Unternehmens-IDs, die der Kundengruppe nicht zugewiesen sind: %ids%."
+"Business unit IDs selected to be both assigned and de-assigned: %ids%.","Geschäftseinheits-IDs, die zugleich zugewiesen und entfernt werden sollen: %ids%."
+"Business unit IDs already assigned to the customer group: %ids%.","Geschäftseinheits-IDs, die der Kundengruppe bereits zugewiesen sind: %ids%."
+"Business unit IDs not assigned to the customer group: %ids%.","Geschäftseinheits-IDs, die der Kundengruppe nicht zugewiesen sind: %ids%."
+"At most %limit% entries can be selected at a time.","Es können höchstens %limit% Einträge auf einmal ausgewählt werden."
+Actions,Aktionen
+Edit,Bearbeiten

@@ -17,7 +17,7 @@ use SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Error\CompanyBu
 use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 use Symfony\Component\HttpFoundation\Response;
 
-class CompanyBusinessUnitsBackendExceptionFactory
+class CompanyBusinessUnitsBackendExceptionFactory extends AbstractCollectionBackendExceptionFactory
 {
     public function __construct(protected CustomerExperienceManagementConfig $config)
     {
@@ -107,22 +107,6 @@ class CompanyBusinessUnitsBackendExceptionFactory
     }
 
     /**
-     * @param array<int, string> $supportedFields
-     */
-    public function createUnsupportedFilterFieldException(string $field, array $supportedFields): GlueApiException
-    {
-        return new GlueApiException(
-            Response::HTTP_BAD_REQUEST,
-            CustomerExperienceManagementConfig::RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD,
-            sprintf(
-                CustomerExperienceManagementConfig::RESPONSE_DETAILS_UNSUPPORTED_FILTER_FIELD,
-                $field,
-                implode(', ', $supportedFields),
-            ),
-        );
-    }
-
-    /**
      * @param array<int, string> $configuredLabelNames
      */
     public function createUnknownCompanyUnitAddressLabelException(
@@ -146,15 +130,6 @@ class CompanyBusinessUnitsBackendExceptionFactory
             Response::HTTP_UNPROCESSABLE_ENTITY,
             CustomerExperienceManagementConfig::RESPONSE_CODE_UNKNOWN_COUNTRY,
             sprintf(CustomerExperienceManagementConfig::RESPONSE_DETAILS_UNKNOWN_COUNTRY, $iso2Code),
-        );
-    }
-
-    public function createNonScalarFilterValueException(string $field): GlueApiException
-    {
-        return new GlueApiException(
-            Response::HTTP_BAD_REQUEST,
-            CustomerExperienceManagementConfig::RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD,
-            sprintf(CustomerExperienceManagementConfig::RESPONSE_DETAILS_NON_SCALAR_FILTER_VALUE, $field),
         );
     }
 

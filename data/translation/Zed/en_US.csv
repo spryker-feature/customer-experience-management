@@ -1,0 +1,28 @@
+Companies,Companies
+"Business Units","Business Units"
+"Available companies","Available companies"
+"Companies to be assigned","Companies to be assigned"
+"Assigned companies","Assigned companies"
+"Companies to be de-assigned","Companies to be de-assigned"
+"Available business units","Available business units"
+"Business units to be assigned","Business units to be assigned"
+"Assigned business units","Assigned business units"
+"Business units to be de-assigned","Business units to be de-assigned"
+ID,ID
+Company,Company
+"Business unit","Business unit"
+Customers,Customers
+Select,Select
+Selected,Selected
+"The selected IDs are not valid.","The selected IDs are not valid."
+"Unknown company IDs: %ids%.","Unknown company IDs: %ids%."
+"Unknown business unit IDs: %ids%.","Unknown business unit IDs: %ids%."
+"Company IDs selected to be both assigned and de-assigned: %ids%.","Company IDs selected to be both assigned and de-assigned: %ids%."
+"Company IDs already assigned to the customer group: %ids%.","Company IDs already assigned to the customer group: %ids%."
+"Company IDs not assigned to the customer group: %ids%.","Company IDs not assigned to the customer group: %ids%."
+"Business unit IDs selected to be both assigned and de-assigned: %ids%.","Business unit IDs selected to be both assigned and de-assigned: %ids%."
+"Business unit IDs already assigned to the customer group: %ids%.","Business unit IDs already assigned to the customer group: %ids%."
+"Business unit IDs not assigned to the customer group: %ids%.","Business unit IDs not assigned to the customer group: %ids%."
+"At most %limit% entries can be selected at a time.","At most %limit% entries can be selected at a time."
+Actions,Actions
+Edit,Edit

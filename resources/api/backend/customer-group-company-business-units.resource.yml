@@ -1,0 +1,266 @@
+resource:
+    name: CustomerGroupsCompanyBusinessUnits
+    shortName: customer-group-company-business-units
+    description: 'Business unit memberships of a customer group (list the member business units, add business units, replace the whole set, remove one business unit)'
+
+    provider: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Provider\CustomerGroupCompanyBusinessUnitsBackendProvider
+    processor: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Processor\CustomerGroupCompanyBusinessUnitsBackendProcessor
+
+    paginationEnabled: true
+    paginationItemsPerPage: 10
+    paginationMaximumItemsPerPage: 100
+
+    security: "is_granted('ROLE_BACK_OFFICE_USER')"
+
+    operations:
+        - type: GetCollection
+          name: getCustomerGroupCompanyBusinessUnits
+          description: >-
+              Retrieve the business units assigned to the group.
+              Pagination (JSON:API): `page[limit]` (default 10, at most 100), `page[offset]` (default 0, rounded
+              down to a multiple of `page[limit]`); the pagination summary is returned as top-level
+              `meta.pagination` with `links.first/last/prev/next`.
+              Free-text search: `q`, matched against the business unit name, ignoring case.
+              Filtering follows the JSON:API `filter[customer-group-company-business-units.<property>]` form:
+              `filter[customer-group-company-business-units.companyUuid]` returns only the business units of that company.
+              Sorting: `sort` accepts name, prefixed with `-` for descending; an unsupported field returns 400.
+              Without `sort`, the business units are listed in the order in which they were created. Business units
+              with the same name keep a fixed order, so paging never repeats or skips one.
+              Each item carries the uuid and the name of its business unit and of the unit's company. With
+              `include=company-business-units,companies`, each item also gets the `company-business-units` and
+              `companies` relationships, and the business units and their companies are returned in `included`.
+              A group can hold business units of several companies.
+          uriTemplate: '/customer-groups/{uuid}/company-business-units'
+          uriVariables:
+              uuid:
+                  identifiers: [uuid]
+          openapiContext:
+              summary: 'List the business units of a customer group'
+              parameters:
+                  - name: 'q'
+                    in: query
+                    required: false
+                    description: 'Free-text search, matched against the business unit name, ignoring case.'
+                    schema:
+                        type: string
+                    example: 'zurich'
+                  - name: 'filter[customer-group-company-business-units.companyUuid]'
+                    in: query
+                    required: false
+                    description: 'Returns only the business units of the company with this uuid.'
+                    schema:
+                        type: string
+                    example: '0818f408-cc84-575d-ad54-92118a0e4273'
+                  - name: 'sort'
+                    in: query
+                    required: false
+                    description: 'Sort field, prefixed with `-` for descending order. Any other field returns 400 (error code 1203).'
+                    schema:
+                        type: string
+                        enum: ['name', '-name']
+                    example: 'name'
+              responses:
+                  200:
+                      description: 'Assigned business units returned, with JSON:API pagination links.'
+                  400:
+                      description: >-
+                          Unsupported sort field (error code 1203), a filter on a property other than `companyUuid` or
+                          with more than one value (error code 1215), or a filter key that is not in
+                          `filter[customer-group-company-business-units.<property>]` form (error code 011).
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  404:
+                      description: 'No customer group matches the uuid (error code 1222).'
+
+        - type: Post
+          name: assignCompanyBusinessUnitsToCustomerGroup
+          description: >-
+              Add business units to the group. The body carries `companyBusinessUnitUuids`, a required, non-empty array
+              of at most 1000 business unit uuids without duplicates. All-or-nothing: if any uuid matches no business
+              unit, nothing is added and every unknown uuid is listed in `errors[]`. Business units that are already
+              assigned are skipped, so sending the same request twice changes nothing the second time.
+              The membership is written the same way as a save in the Back Office. Adding a business unit doesn't
+              assign its company, its parent or child units, or its users; the business units themselves are not changed.
+              This operation only adds. To replace the whole set in one call, use `PATCH` on this same path.
+          uriTemplate: '/customer-groups/{uuid}/company-business-units'
+          uriVariables:
+              uuid:
+                  identifiers: [uuid]
+          deserialize: true
+          read: false
+          output: false
+          status: 204
+          openapiContext:
+              summary: 'Add business units to a customer group'
+              requestBody:
+                  content:
+                      application/vnd.api+json:
+                          example:
+                              data:
+                                  type: 'customer-group-company-business-units'
+                                  attributes:
+                                      companyBusinessUnitUuids: ['b8a06475-73f5-575a-b1e9-1954de7a49ef']
+              responses:
+                  204:
+                      description: 'The business units are assigned to the group; units that were already assigned were skipped.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  404:
+                      description: 'No customer group matches the uuid (error code 1222).'
+                  422:
+                      description: >-
+                          Nothing was added: `companyBusinessUnitUuids` was missing or empty, more than 1000 uuids were
+                          sent, the list contains duplicates or a value that is not a uuid, or one or more uuids match no
+                          business unit (error code 1238, one `errors[]` entry per unknown uuid).
+
+        - type: Patch
+          name: replaceCustomerGroupCompanyBusinessUnits
+          description: >-
+              Replace the whole business unit assignment. The `companyBusinessUnitUuids` you send become the complete
+              new set of member business units, so include every business unit the group should keep. Business units
+              missing from the list are removed from the group; the units themselves, and their memberships in other
+              groups, are untouched. An empty array removes every business unit membership of the group, with one
+              statement whatever the group size, and sending it again changes nothing.
+              `companyBusinessUnitUuids` is required: a body without it is rejected rather than read as an empty set.
+              At most 1000 uuids per request, without duplicates. All-or-nothing: if any uuid matches no business
+              unit, nothing changes and every unknown uuid is listed in `errors[]`.
+              The group's company memberships stay as they are. Use `POST` on this path to add without removing,
+              and `DELETE /customer-groups/{uuid}/company-business-units/{companyBusinessUnitUuid}` to remove one
+              business unit.
+          uriTemplate: '/customer-groups/{uuid}/company-business-units'
+          uriVariables:
+              uuid:
+                  identifiers: [uuid]
+          deserialize: true
+          read: false
+          output: false
+          status: 204
+          openapiContext:
+              summary: 'Replace the business units of a customer group'
+              requestBody:
+                  content:
+                      application/vnd.api+json:
+                          example:
+                              data:
+                                  type: 'customer-group-company-business-units'
+                                  attributes:
+                                      companyBusinessUnitUuids: ['b8a06475-73f5-575a-b1e9-1954de7a49ef']
+              responses:
+                  204:
+                      description: 'The member business units of the group are exactly the units sent. An empty array left the group without business units.'
+                  400:
+                      description: 'Malformed request body — unparseable JSON, a missing JSON:API `data` member, or a property whose JSON type does not match the schema.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  404:
+                      description: 'No customer group matches the uuid (error code 1222).'
+                  422:
+                      description: >-
+                          Nothing changed: `companyBusinessUnitUuids` was missing, more than 1000 uuids were sent, the list
+                          contains duplicates or a value that is not a uuid, or one or more uuids match no business unit
+                          (error code 1238, one `errors[]` entry per unknown uuid).
+
+        - type: Delete
+          name: unassignCompanyBusinessUnitFromCustomerGroup
+          description: >-
+              Remove one business unit from the group. The business unit, its memberships in other groups and the
+              group's company memberships are untouched, also the membership of the unit's company.
+          uriTemplate: '/customer-groups/{uuid}/company-business-units/{companyBusinessUnitUuid}'
+          uriVariables:
+              uuid:
+                  identifiers: [uuid]
+              companyBusinessUnitUuid:
+                  identifiers: [companyBusinessUnitUuid]
+          read: false
+          status: 204
+          openapiContext:
+              summary: 'Remove a business unit from a customer group'
+              responses:
+                  204:
+                      description: 'The business unit is no longer assigned to the group. The business unit is kept.'
+                  401:
+                      description: 'Missing or expired access token.'
+                  403:
+                      description: 'The operator has no access to this resource.'
+                  404:
+                      description: 'No customer group matches the uuid (error code 1222), or the business unit is not assigned to it (error code 1239).'
+
+    includes:
+        - relationshipName: company-business-units
+          targetResource: CompanyBusinessUnits
+          resolverClass: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Relationship\CompanyBusinessUnitsRelationshipResolver
+
+        - relationshipName: companies
+          targetResource: Companies
+          resolverClass: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Relationship\CompaniesRelationshipResolver
+
+    properties:
+        companyBusinessUnitUuid:
+            type: string
+            identifier: true
+            writable: false
+            readable: true
+            required: true
+            description: 'Uuid of the assigned business unit. Links the membership to the `company-business-units` resource.'
+            openapiContext:
+                example: 'b8a06475-73f5-575a-b1e9-1954de7a49ef'
+
+        companyBusinessUnitName:
+            type: string
+            writable: false
+            readable: true
+            required: true
+            description: 'Name of the assigned business unit, for display.'
+            openapiContext:
+                example: 'Spryker Systems Berlin'
+
+        companyUuid:
+            type: string
+            writable: false
+            readable: true
+            required: true
+            description: 'Uuid of the company the business unit belongs to. Links the membership to the `companies` resource.'
+            openapiContext:
+                example: '0818f408-cc84-575d-ad54-92118a0e4273'
+
+        companyName:
+            type: string
+            writable: false
+            readable: true
+            required: true
+            description: 'Name of the company the business unit belongs to, for display.'
+            openapiContext:
+                example: 'Spryker Systems GmbH'
+
+        uuid:
+            type: string
+            writable: false
+            readable: false
+            required: false
+            description: 'Uuid of the customer group, taken from the URL. Never accepted in a request body and never returned.'
+            openapiContext:
+                example: '4b1e6a02-9f37-5c48-b6d1-2e8a70c9f4a5'
+
+        companyBusinessUnitUuids:
+            type: array
+            writable: true
+            readable: false
+            required: true
+            nullable: true
+            description: >-
+                Business unit uuids the operation applies, at most 1000 per request, without duplicates.
+                On add (`POST`): the business units to add; must not be empty. On replace (`PATCH`): the complete new
+                set of member business units; an empty array removes every business unit. Required by both, never
+                returned.
+            openapiContext:
+                items:
+                    type: string
+                example: ['b8a06475-73f5-575a-b1e9-1954de7a49ef']

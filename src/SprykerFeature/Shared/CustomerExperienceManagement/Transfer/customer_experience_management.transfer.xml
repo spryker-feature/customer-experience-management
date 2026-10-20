@@ -4,39 +4,104 @@
    xsi:schemaLocation="spryker:transfer-01 http://static.spryker.com/transfer-01.xsd">
 
     <transfer name="CustomerResponse">
+        <property name="errors" type="CustomerError[]" singular="error"/>
+        <property name="isSuccess" type="bool"/>
+        <property name="customerTransfer" type="Customer"/>
+        <property name="hasCustomer" type="bool"/>
     </transfer>
 
     <transfer name="Customer">
+        <property name="customerReference" type="string"/>
+        <property name="salutation" type="string"/>
+        <property name="firstName" type="string"/>
+        <property name="lastName" type="string"/>
+        <property name="gender" type="string"/>
+        <property name="dateOfBirth" type="string"/>
+        <property name="phone" type="string"/>
+        <property name="defaultBillingAddress" type="string"/>
+        <property name="defaultShippingAddress" type="string"/>
+        <property name="email" type="string"/>
+        <property name="locale" type="Locale"/>
+        <property name="skipSendingRegistrationToken" type="bool"/>
+        <property name="isEditedInBackoffice" type="bool" strict="true"/>
+        <property name="idCustomer" type="int"/>
+        <property name="sendPasswordToken" type="bool"/>
+        <property name="storeName" type="string"/>
+        <property name="company" type="string"/>
     </transfer>
 
     <transfer name="Locale">
+        <property name="localeName" type="string"/>
+        <property name="idLocale" type="int"/>
     </transfer>
 
     <transfer name="Pagination">
+        <property name="limit" type="int"/>
+        <property name="offset" type="int"/>
+        <property name="nbResults" type="int"/>
+        <property name="page" type="int"/>
+        <property name="maxPerPage" type="int"/>
     </transfer>
 
     <transfer name="CustomerCollectionCriteria" strict="true">
+        <property name="customerConditions" type="CustomerConditions"/>
+        <property name="pagination" type="Pagination"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
     </transfer>
 
     <transfer name="CustomerConditions" strict="true">
+        <property name="customerReferences" type="string[]" singular="customerReference"/>
+        <property name="emails" type="string[]" singular="email"/>
+        <property name="searchTerms" type="CustomerCriteriaSearchTerms"/>
     </transfer>
 
     <transfer name="CustomerCriteriaSearchTerms" strict="true">
+        <property name="email" type="string"/>
+        <property name="firstName" type="string"/>
+        <property name="lastName" type="string"/>
     </transfer>
 
     <transfer name="Address">
+        <property name="country" type="Country"/>
+        <property name="idCustomerAddress" type="int"/>
+        <property name="salutation" type="string"/>
+        <property name="fkCustomer" type="int"/>
+        <property name="uuid" type="string" description="A Universally Unique Identifier for an entity."/>
+        <property name="firstName" type="string"/>
+        <property name="lastName" type="string"/>
+        <property name="address1" type="string"/>
+        <property name="address2" type="string"/>
+        <property name="address3" type="string"/>
+        <property name="company" type="string"/>
+        <property name="city" type="string"/>
+        <property name="zipCode" type="string"/>
+        <property name="iso2Code" type="string"/>
+        <property name="region" type="string"/>
+        <property name="phone" type="string"/>
+        <property name="comment" type="string"/>
+        <property name="isDefaultBilling" type="bool"/>
+        <property name="isDefaultShipping" type="bool"/>
     </transfer>
 
     <transfer name="AddressCollection" strict="true">
+        <property name="addresses" type="Address[]" singular="address"/>
+        <property name="pagination" type="Pagination"/>
     </transfer>
 
     <transfer name="AddressCriteria" strict="true">
+        <property name="addressConditions" type="AddressConditions"/>
+        <property name="pagination" type="Pagination"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
     </transfer>
 
     <transfer name="AddressConditions" strict="true">
+        <property name="uuids" type="string[]" singular="uuid"/>
+        <property name="customerIds" type="int[]" singular="idCustomer"/>
     </transfer>
 
     <transfer name="Sort">
+        <property name="field" type="string"/>
+        <property name="isAscending" type="bool"/>
     </transfer>
 
     <transfer name="RestErrorMessage">
@@ -46,15 +111,25 @@
     </transfer>
 
     <transfer name="CustomerNoteCollection">
+        <property name="notes" type="SpyCustomerNoteEntity[]" singular="notes"/>
+        <property name="pagination" type="Pagination"/>
     </transfer>
 
     <transfer name="CustomerNoteCriteria" strict="true">
+        <property name="customerNoteConditions" type="CustomerNoteConditions"/>
+        <property name="pagination" type="Pagination"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
     </transfer>
 
     <transfer name="CustomerNoteConditions" strict="true">
+        <property name="uuids" type="string[]" singular="uuid"/>
+        <property name="customerIds" type="int[]" singular="idCustomer"/>
     </transfer>
 
     <transfer name="User">
+        <property name="idUser" type="int"/>
+        <property name="firstName" type="string"/>
+        <property name="lastName" type="string"/>
     </transfer>
 
     <transfer name="UserCriteria">
@@ -67,6 +142,8 @@
     </transfer>
 
     <transfer name="AddressResponse" strict="true">
+        <property name="errors" type="CustomerError[]" singular="error"/>
+        <property name="isSuccess" type="bool"/>
     </transfer>
 
     <transfer name="CompanyUser">
@@ -114,6 +191,16 @@
     <transfer name="CompanyBusinessUnit">
         <property name="idCompanyBusinessUnit" type="int"/>
         <property name="uuid" type="string"/>
+        <property name="key" type="string"/>
+        <property name="name" type="string"/>
+        <property name="iban" type="string"/>
+        <property name="bic" type="string"/>
+        <property name="phone" type="string"/>
+        <property name="fkCompany" type="int"/>
+        <property name="addressCollection" type="CompanyUnitAddressCollection"/>
+        <property name="fkParentCompanyBusinessUnit" type="int"/>
+        <property name="company" type="Company"/>
+        <property name="parentCompanyBusinessUnit" type="CompanyBusinessUnit"/>
     </transfer>
 
     <transfer name="CompanyRoleCollection">
@@ -142,12 +229,20 @@
         <property name="name" type="string"/>
         <property name="status" type="string"/>
         <property name="isActive" type="bool"/>
+        <property name="key" type="string"/>
     </transfer>
 
     <transfer name="CompanyCriteriaFilter">
         <property name="name" type="string"/>
         <property name="pagination" type="Pagination"/>
         <property name="sortCollection" type="Sort[]" singular="sort"/>
+        <property name="companyIds" type="int[]" singular="companyId"/>
+        <property name="uuids" type="string[]" singular="uuid"/>
+    </transfer>
+
+    <transfer name="CompanyCollection">
+        <property name="companies" type="Company[]" singular="company"/>
+        <property name="pagination" type="Pagination"/>
     </transfer>
 
     <transfer name="CompanyResponse">
@@ -185,69 +280,258 @@
     </transfer>
 
     <transfer name="CompanyBusinessUnitResponse">
+        <property name="isSuccessful" type="bool"/>
+        <property name="companyBusinessUnitTransfer" type="CompanyBusinessUnit"/>
     </transfer>
 
     <transfer name="CompanyUnitAddressResponse">
+        <property name="isSuccessful" type="bool"/>
+        <property name="companyUnitAddressTransfer" type="CompanyUnitAddress"/>
     </transfer>
 
     <transfer name="CompanyUnitAddressLabelCollection">
+        <property name="labels" type="SpyCompanyUnitAddressLabelEntity[]" singular="labels"/>
     </transfer>
 
     <transfer name="CompanyUnitAddressCollection">
+        <property name="companyUnitAddresses" type="CompanyUnitAddress[]" singular="companyUnitAddress"/>
     </transfer>
 
     <transfer name="CompanyUnitAddress">
+        <property name="fkCompany" type="int"/>
+        <property name="fkCountry" type="int"/>
+        <property name="address1" type="string"/>
+        <property name="labelCollection" type="CompanyUnitAddressLabelCollection"/>
+        <property name="uuid" type="string"/>
+        <property name="company" type="Company"/>
+        <property name="iso2Code" type="string"/>
+        <property name="address2" type="string"/>
+        <property name="address3" type="string"/>
+        <property name="city" type="string"/>
+        <property name="zipCode" type="string"/>
+        <property name="comment" type="string"/>
     </transfer>
 
     <transfer name="CompanyUnitAddressCriteriaFilter">
+        <property name="pagination" type="Pagination"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
+        <property name="uuids" type="string[]" singular="uuid" strict="true"/>
+        <property name="searchTerm" type="string" strict="true"/>
     </transfer>
 
     <transfer name="CompanyUnitAddressLabelConditions" strict="true">
+        <property name="names" type="string[]" singular="name"/>
     </transfer>
 
     <transfer name="CompanyUnitAddressLabelCriteria" strict="true">
+        <property name="companyUnitAddressLabelConditions" type="CompanyUnitAddressLabelConditions" strict="true"/>
     </transfer>
 
     <transfer name="CompanyBusinessUnitCriteriaFilter">
+        <property name="companyBusinessUnitIds" type="array" singular="companyBusinessUnitIds"/>
+        <property name="withoutExpanders" type="bool"/>
+        <property name="uuids" type="string[]" singular="uuid"/>
+        <property name="pagination" type="Pagination"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
+        <property name="searchTerm" type="string"/>
+    </transfer>
+
+    <transfer name="CompanyBusinessUnitCollection">
+        <property name="companyBusinessUnits" type="CompanyBusinessUnit[]" singular="companyBusinessUnit"/>
+        <property name="pagination" type="Pagination"/>
     </transfer>
 
     <transfer name="Country">
+        <property name="idCountry" type="int"/>
+        <property name="iso2Code" type="string"/>
+        <property name="name" type="string"/>
     </transfer>
 
     <transfer name="CustomerGroupCollectionResponse" strict="true">
+        <property name="errors" type="Error[]" singular="error"/>
+        <property name="customerGroups" type="CustomerGroup[]" singular="customerGroup"/>
     </transfer>
 
     <transfer name="CustomerCollection">
+        <property name="customers" type="Customer[]" singular="customer"/>
+        <property name="pagination" type="Pagination"/>
     </transfer>
 
     <transfer name="CustomerGroupCollection">
+        <property name="groups" type="CustomerGroup[]" singular="group"/>
     </transfer>
 
     <transfer name="CustomerGroupConditions" strict="true">
+        <property name="searchTerm" type="string"/>
+        <property name="names" type="string[]" singular="name"/>
+        <property name="uuids" type="string[]" singular="uuid"/>
     </transfer>
 
     <transfer name="CustomerGroupCriteria" strict="true">
+        <property name="pagination" type="Pagination"/>
+        <property name="customerGroupConditions" type="CustomerGroupConditions"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
     </transfer>
 
     <transfer name="CustomerGroupCustomerConditions" strict="true">
+        <property name="customerGroupIds" type="int[]" singular="idCustomerGroup"/>
+        <property name="searchTerm" type="string"/>
+        <property name="customerReferences" type="string[]" singular="customerReference"/>
     </transfer>
 
     <transfer name="CustomerGroupCustomerCriteria" strict="true">
+        <property name="customerGroupCustomerConditions" type="CustomerGroupCustomerConditions"/>
+        <property name="pagination" type="Pagination"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
     </transfer>
 
     <transfer name="CustomerGroup">
+        <property name="companyAssignment" type="CustomerGroupToCompanyAssignment"/>
+        <property name="companyBusinessUnitAssignment" type="CustomerGroupToCompanyBusinessUnitAssignment"/>
+        <property name="uuid" type="string"/>
+        <property name="name" type="string"/>
+        <property name="description" type="string"/>
+        <property name="createdAt" type="string"/>
+        <property name="isAssignmentReplacement" type="bool"/>
+        <property name="idCustomerGroup" type="int"/>
+        <property name="hasAssignmentChange" type="bool"/>
+        <property name="customerAssignment" type="CustomerGroupToCustomerAssignment"/>
+        <property name="customerReferences" type="string[]" singular="customerReference"/>
     </transfer>
 
     <transfer name="ContentTypeAccess">
+        <property name="contentType" type="string" description="The type of content being accessed or stored."/>
+        <property name="isRestricted" type="bool"/>
     </transfer>
 
     <transfer name="CustomerAccess">
+        <property name="contentTypeAccess" type="ContentTypeAccess[]" singular="contentTypeAccess"/>
     </transfer>
 
     <transfer name="CustomerGroupCollectionRequest" strict="true">
+        <property name="isTransactional" type="bool"/>
+        <property name="customerGroups" type="CustomerGroup[]" singular="customerGroup"/>
     </transfer>
 
     <transfer name="CustomerGroupToCustomerAssignment">
+        <property name="idCustomerGroup" type="int"/>
+        <property name="idsCustomerToAssign" singular="idCustomerToAssign" type="array"/>
+        <property name="idsCustomerToDeAssign" singular="idCustomerToDeAssign" type="array"/>
+    </transfer>
+
+    <transfer name="CustomerGroupToCompanyAssignment" strict="true">
+        <property name="idsCompanyToAssign" type="int[]" singular="idCompanyToAssign"/>
+        <property name="idsCompanyToDeAssign" type="int[]" singular="idCompanyToDeAssign"/>
+        <property name="isDeAssignAll" type="bool"/>
+    </transfer>
+
+    <transfer name="CustomerGroupToCompanyBusinessUnitAssignment" strict="true">
+        <property name="idsCompanyBusinessUnitToAssign" type="int[]" singular="idCompanyBusinessUnitToAssign"/>
+        <property name="idsCompanyBusinessUnitToDeAssign" type="int[]" singular="idCompanyBusinessUnitToDeAssign"/>
+        <property name="isDeAssignAll" type="bool"/>
+    </transfer>
+
+    <transfer name="TabsView">
+        <property name="tabs" type="TabItem[]" singular="tab"/>
+        <property name="isNavigable" type="bool"/>
+    </transfer>
+
+    <transfer name="TabItem">
+        <property name="name" type="string"/>
+        <property name="title" type="string"/>
+        <property name="template" type="string"/>
+    </transfer>
+
+    <transfer name="DataImporterConfiguration">
+        <property name="readerConfiguration" type="DataImporterReaderConfiguration"/>
+    </transfer>
+
+    <transfer name="DataImporterReaderConfiguration">
+    </transfer>
+
+    <transfer name="DataImporterDataSourceConfiguration">
+        <property name="importType" type="string"/>
+        <property name="fileName" type="string"/>
+        <property name="moduleName" type="string"/>
+    </transfer>
+
+    <transfer name="DataImporterReport">
+        <property name="messages" type="DataImporterReportMessage[]" singular="message"/>
+    </transfer>
+
+    <transfer name="DataImporterReportMessage">
+        <property name="message" type="string"/>
+        <property name="dataSetNumber" type="int" strict="true"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompany" strict="true">
+        <property name="idCustomerGroup" type="int"/>
+        <property name="idCompany" type="int"/>
+        <property name="companyUuid" type="string"/>
+        <property name="companyName" type="string"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompanyCollection" strict="true">
+        <property name="customerGroupCompanies" type="CustomerGroupCompany[]" singular="customerGroupCompany"/>
+        <property name="pagination" type="Pagination"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompanyCriteria" strict="true">
+        <property name="customerGroupCompanyConditions" type="CustomerGroupCompanyConditions"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
+        <property name="pagination" type="Pagination"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompanyConditions" strict="true">
+        <property name="customerGroupIds" type="int[]" singular="idCustomerGroup"/>
+        <property name="companyUuids" type="string[]" singular="companyUuid"/>
+        <property name="searchTerm" type="string"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompanyBusinessUnit" strict="true">
+        <property name="idCustomerGroup" type="int"/>
+        <property name="idCompanyBusinessUnit" type="int"/>
+        <property name="companyBusinessUnitUuid" type="string"/>
+        <property name="companyUuid" type="string"/>
+        <property name="companyBusinessUnitName" type="string"/>
+        <property name="companyName" type="string"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompanyBusinessUnitCollection" strict="true">
+        <property name="customerGroupCompanyBusinessUnits" type="CustomerGroupCompanyBusinessUnit[]" singular="customerGroupCompanyBusinessUnit"/>
+        <property name="pagination" type="Pagination"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompanyBusinessUnitCriteria" strict="true">
+        <property name="customerGroupCompanyBusinessUnitConditions" type="CustomerGroupCompanyBusinessUnitConditions"/>
+        <property name="sortCollection" type="Sort[]" singular="sort"/>
+        <property name="pagination" type="Pagination"/>
+    </transfer>
+
+    <transfer name="CustomerGroupCompanyBusinessUnitConditions" strict="true">
+        <property name="customerGroupIds" type="int[]" singular="idCustomerGroup"/>
+        <property name="companyBusinessUnitUuids" type="string[]" singular="companyBusinessUnitUuid"/>
+        <property name="companyUuids" type="string[]" singular="companyUuid"/>
+        <property name="searchTerm" type="string"/>
+    </transfer>
+
+    <transfer name="Translation">
+        <property name="glossaryKey" type="GlossaryKey" strict="true"/>
+        <property name="fkLocale" type="int"/>
+        <property name="value" type="string"/>
+    </transfer>
+
+    <transfer name="CustomerError">
+        <property name="message" type="string"/>
+    </transfer>
+
+    <transfer name="Error">
+        <property name="message" type="string"/>
+        <property name="entityIdentifier" type="string"/>
+    </transfer>
+
+    <transfer name="GlossaryKey">
+        <property name="key" type="string"/>
     </transfer>
 
 </transfers>

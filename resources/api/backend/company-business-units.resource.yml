@@ -144,7 +144,7 @@ resource:
             required: true
             description: 'Public unique business unit identifier.'
             openapiContext:
-                example: '4d1b3f9a-9d4c-5c1e-9f6b-2b5a7c8d9e01'
+                example: 'b8a06475-73f5-575a-b1e9-1954de7a49ef'
 
         name:
             type: string

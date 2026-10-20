@@ -1,0 +1,5 @@
+{% embed '@Gui/Partials/widget.twig' with { widget_title: 'Companies' } %}
+    {% block widget_content %}
+        {{ companyTable | raw }}
+    {% endblock %}
+{% endembed %}

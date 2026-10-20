@@ -44,6 +44,56 @@ class CompanyBusinessUnitReader implements CompanyBusinessUnitReaderInterface
         return $companyBusinessUnitTransfer;
     }
 
+    /**
+     * @param list<string> $companyBusinessUnitUuids
+     *
+     * @return array<string, \Generated\Shared\Transfer\CompanyBusinessUnitTransfer>
+     */
+    public function getCompanyBusinessUnitsIndexedByUuid(array $companyBusinessUnitUuids): array
+    {
+        if ($companyBusinessUnitUuids === []) {
+            return [];
+        }
+
+        $companyBusinessUnitCollectionTransfer = $this->companyBusinessUnitFacade->getCompanyBusinessUnitCollection(
+            (new CompanyBusinessUnitCriteriaFilterTransfer())->setUuids($companyBusinessUnitUuids),
+        );
+
+        $companyBusinessUnitTransfersByUuid = [];
+
+        foreach ($companyBusinessUnitCollectionTransfer->getCompanyBusinessUnits() as $companyBusinessUnitTransfer) {
+            $companyBusinessUnitTransfersByUuid[$companyBusinessUnitTransfer->getUuidOrFail()] = $companyBusinessUnitTransfer;
+        }
+
+        return $companyBusinessUnitTransfersByUuid;
+    }
+
+    /**
+     * @param list<string> $companyBusinessUnitUuids
+     *
+     * @return array<string, int>
+     */
+    public function getCompanyBusinessUnitIdsIndexedByUuid(array $companyBusinessUnitUuids): array
+    {
+        if ($companyBusinessUnitUuids === []) {
+            return [];
+        }
+
+        $companyBusinessUnitCollectionTransfer = $this->companyBusinessUnitFacade->getCompanyBusinessUnitCollection(
+            (new CompanyBusinessUnitCriteriaFilterTransfer())
+                ->setUuids($companyBusinessUnitUuids)
+                ->setWithoutExpanders(true),
+        );
+
+        $companyBusinessUnitIdsByUuid = [];
+
+        foreach ($companyBusinessUnitCollectionTransfer->getCompanyBusinessUnits() as $companyBusinessUnitTransfer) {
+            $companyBusinessUnitIdsByUuid[$companyBusinessUnitTransfer->getUuidOrFail()] = $companyBusinessUnitTransfer->getIdCompanyBusinessUnitOrFail();
+        }
+
+        return $companyBusinessUnitIdsByUuid;
+    }
+
     protected function findCompanyBusinessUnitByUuid(string $uuid): ?CompanyBusinessUnitTransfer
     {
         $companyBusinessUnitCollectionTransfer = $this->companyBusinessUnitFacade->getCompanyBusinessUnitCollection(

@@ -185,6 +185,22 @@ class CustomerExperienceManagementConfig extends AbstractBundleConfig
 
     public const string RESPONSE_CODE_COMPANY_ROLE_COMPANY_IMMUTABLE = '1235';
 
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_COMPANY_NOT_FOUND = '1236';
+
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_COMPANY_ASSIGNMENT_NOT_FOUND = '1237';
+
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_COMPANY_BUSINESS_UNIT_NOT_FOUND = '1238';
+
+    public const string RESPONSE_CODE_CUSTOMER_GROUP_COMPANY_BUSINESS_UNIT_ASSIGNMENT_NOT_FOUND = '1239';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_COMPANY_NOT_FOUND = 'Company with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_COMPANY_ASSIGNMENT_NOT_FOUND = 'Company "%s" is not assigned to customer group "%s".';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_COMPANY_BUSINESS_UNIT_NOT_FOUND = 'Company business unit with uuid "%s" was not found.';
+
+    public const string RESPONSE_DETAILS_CUSTOMER_GROUP_COMPANY_BUSINESS_UNIT_ASSIGNMENT_NOT_FOUND = 'Company business unit "%s" is not assigned to customer group "%s".';
+
     public const string RESPONSE_DETAILS_CUSTOMER_NOT_FOUND = 'Customer with reference "%s" was not found.';
 
     public const string RESPONSE_DETAILS_COMPANY_USER_NOT_FOUND = 'Company user with uuid "%s" was not found.';

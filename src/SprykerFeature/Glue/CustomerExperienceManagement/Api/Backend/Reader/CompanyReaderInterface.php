@@ -18,7 +18,14 @@ interface CompanyReaderInterface
     /**
      * @param array<int, int> $companyIds
      *
-     * @return array<int, string> Keyed by company id.
+     * @return array<int, string>
      */
     public function getCompanyUuidsByCompanyIds(array $companyIds): array;
+
+    /**
+     * @param list<string> $companyUuids
+     *
+     * @return array<string, \Generated\Shared\Transfer\CompanyTransfer>
+     */
+    public function getCompaniesIndexedByUuid(array $companyUuids): array;
 }

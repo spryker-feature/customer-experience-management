@@ -43,6 +43,10 @@ class CustomerExperienceManagementBackendApiHelper extends Module
 
     public const string RESOURCE_CUSTOMER_GROUP_CUSTOMERS = 'customer-group-customers';
 
+    public const string RESOURCE_CUSTOMER_GROUP_COMPANIES = 'customer-group-companies';
+
+    public const string RESOURCE_CUSTOMER_GROUP_COMPANY_BUSINESS_UNITS = 'customer-group-company-business-units';
+
     public const string RESOURCE_CUSTOMER_ACCESS = 'customer-access';
 
     protected const string LISTED_COMPANY_NAME_PREFIX = 'CxmListedCompany';
@@ -539,6 +543,62 @@ class CustomerExperienceManagementBackendApiHelper extends Module
             static::RESOURCE_CUSTOMERS,
             $customerReference,
         );
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     */
+    public function getCustomerGroupCompanyCollectionUrl(string $uuid, array $query = []): string
+    {
+        return sprintf('/%s/%s/%s', static::RESOURCE_CUSTOMER_GROUPS, $uuid, static::RESOURCE_COMPANIES) . $this->formatQuery($query);
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     */
+    public function getCustomerGroupCompanyUrl(string $uuid, string $companyUuid, array $query = []): string
+    {
+        return sprintf('/%s/%s/%s/%s', static::RESOURCE_CUSTOMER_GROUPS, $uuid, static::RESOURCE_COMPANIES, $companyUuid)
+            . $this->formatQuery($query);
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     */
+    public function getCustomerGroupCompanyBusinessUnitCollectionUrl(string $uuid, array $query = []): string
+    {
+        return sprintf('/%s/%s/%s', static::RESOURCE_CUSTOMER_GROUPS, $uuid, static::RESOURCE_COMPANY_BUSINESS_UNITS)
+            . $this->formatQuery($query);
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     */
+    public function getCustomerGroupCompanyBusinessUnitUrl(string $uuid, string $companyBusinessUnitUuid, array $query = []): string
+    {
+        return sprintf(
+            '/%s/%s/%s/%s',
+            static::RESOURCE_CUSTOMER_GROUPS,
+            $uuid,
+            static::RESOURCE_COMPANY_BUSINESS_UNITS,
+            $companyBusinessUnitUuid,
+        ) . $this->formatQuery($query);
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     */
+    public function buildCustomerGroupCompaniesRequestBody(array $attributes): string
+    {
+        return $this->buildRequestBody(static::RESOURCE_CUSTOMER_GROUP_COMPANIES, $attributes);
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     */
+    public function buildCustomerGroupCompanyBusinessUnitsRequestBody(array $attributes): string
+    {
+        return $this->buildRequestBody(static::RESOURCE_CUSTOMER_GROUP_COMPANY_BUSINESS_UNITS, $attributes);
     }
 
     public function getCustomerAccessUrl(): string

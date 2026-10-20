@@ -1,0 +1,26 @@
+{{ form_errors(assignmentForm) }}
+
+{% for assignmentField in assignmentForm %}
+    {{ form_widget(assignmentField) }}
+{% endfor %}
+
+{% set destinationTable = {
+    header: assignmentForm.vars.destinationTableColumnTitles | merge(['Selected']),
+    data: [],
+} %}
+
+{{ tabs(assignmentForm.vars.availableTableTabs, {
+    sourceTable: assignmentForm.vars.availableTable,
+    table: destinationTable,
+    id: assignmentForm.vars.availableDestinationTableId,
+    tableAttributes: { 'data-paging': false },
+}) }}
+
+<hr/>
+
+{{ tabs(assignmentForm.vars.assignedTableTabs, {
+    sourceTable: assignmentForm.vars.assignedTable,
+    table: destinationTable,
+    id: assignmentForm.vars.assignedDestinationTableId,
+    tableAttributes: { 'data-paging': false },
+}) }}

@@ -15,7 +15,7 @@ use Spryker\ApiPlatform\Exception\GlueApiException;
 use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 use Symfony\Component\HttpFoundation\Response;
 
-class CustomerGroupsBackendExceptionFactory
+class CustomerGroupsBackendExceptionFactory extends AbstractCollectionBackendExceptionFactory
 {
     public function __construct(
         protected CustomerExperienceManagementConfig $config,
@@ -39,6 +39,28 @@ class CustomerGroupsBackendExceptionFactory
             sprintf(
                 CustomerExperienceManagementConfig::RESPONSE_DETAILS_CUSTOMER_GROUP_ASSIGNMENT_NOT_FOUND,
                 $customerReference,
+                $uuid,
+            ),
+        );
+    }
+
+    public function createCompanyAssignmentNotFoundException(string $companyUuid, string $uuid): GlueApiException
+    {
+        return new GlueApiException(
+            Response::HTTP_NOT_FOUND,
+            CustomerExperienceManagementConfig::RESPONSE_CODE_CUSTOMER_GROUP_COMPANY_ASSIGNMENT_NOT_FOUND,
+            sprintf(CustomerExperienceManagementConfig::RESPONSE_DETAILS_CUSTOMER_GROUP_COMPANY_ASSIGNMENT_NOT_FOUND, $companyUuid, $uuid),
+        );
+    }
+
+    public function createCompanyBusinessUnitAssignmentNotFoundException(string $companyBusinessUnitUuid, string $uuid): GlueApiException
+    {
+        return new GlueApiException(
+            Response::HTTP_NOT_FOUND,
+            CustomerExperienceManagementConfig::RESPONSE_CODE_CUSTOMER_GROUP_COMPANY_BUSINESS_UNIT_ASSIGNMENT_NOT_FOUND,
+            sprintf(
+                CustomerExperienceManagementConfig::RESPONSE_DETAILS_CUSTOMER_GROUP_COMPANY_BUSINESS_UNIT_ASSIGNMENT_NOT_FOUND,
+                $companyBusinessUnitUuid,
                 $uuid,
             ),
         );

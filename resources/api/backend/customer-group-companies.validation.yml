@@ -1,0 +1,22 @@
+post:
+    companyUuids:
+        - NotBlank
+        - Count:
+              min: 1
+              max: 1000
+        - Unique
+        - All:
+              constraints:
+                  - NotBlank
+                  - Uuid
+
+patch:
+    companyUuids:
+        - NotNull
+        - Count:
+              max: 1000
+        - Unique
+        - All:
+              constraints:
+                  - NotBlank
+                  - Uuid

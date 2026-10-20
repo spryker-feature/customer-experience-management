@@ -15,7 +15,7 @@ use Spryker\ApiPlatform\Exception\GlueApiException;
 use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagementConfig;
 use Symfony\Component\HttpFoundation\Response;
 
-class CompaniesBackendExceptionFactory
+class CompaniesBackendExceptionFactory extends AbstractCollectionBackendExceptionFactory
 {
     public function __construct(protected CustomerExperienceManagementConfig $config)
     {
@@ -27,31 +27,6 @@ class CompaniesBackendExceptionFactory
             Response::HTTP_NOT_FOUND,
             CustomerExperienceManagementConfig::RESPONSE_CODE_COMPANY_NOT_FOUND,
             sprintf(CustomerExperienceManagementConfig::RESPONSE_DETAILS_COMPANY_NOT_FOUND, $uuid),
-        );
-    }
-
-    /**
-     * @param array<int, string> $supportedFields
-     */
-    public function createUnsupportedFilterFieldException(string $field, array $supportedFields): GlueApiException
-    {
-        return new GlueApiException(
-            Response::HTTP_BAD_REQUEST,
-            CustomerExperienceManagementConfig::RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD,
-            sprintf(
-                CustomerExperienceManagementConfig::RESPONSE_DETAILS_UNSUPPORTED_FILTER_FIELD,
-                $field,
-                implode(', ', $supportedFields),
-            ),
-        );
-    }
-
-    public function createNonScalarFilterValueException(string $field): GlueApiException
-    {
-        return new GlueApiException(
-            Response::HTTP_BAD_REQUEST,
-            CustomerExperienceManagementConfig::RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD,
-            sprintf(CustomerExperienceManagementConfig::RESPONSE_DETAILS_NON_SCALAR_FILTER_VALUE, $field),
         );
     }
 

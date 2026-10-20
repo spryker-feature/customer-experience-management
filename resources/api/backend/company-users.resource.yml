@@ -357,13 +357,11 @@ resource:
 
         - relationshipName: companies
           targetResource: Companies
-          uriVariableMappings:
-              uuid: companyUuid
+          resolverClass: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Relationship\CompaniesRelationshipResolver
 
         - relationshipName: company-business-units
           targetResource: CompanyBusinessUnits
-          uriVariableMappings:
-              uuid: companyBusinessUnitUuid
+          resolverClass: SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Relationship\CompanyBusinessUnitsRelationshipResolver
 
         - relationshipName: company-roles
           targetResource: CompanyRoles

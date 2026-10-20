@@ -221,7 +221,7 @@ resource:
             type: array
             writable: true
             readable: false
-            required: false
+            required: true
             nullable: true
             description: >-
                 Customer references the operation applies, at most 1000 per request.

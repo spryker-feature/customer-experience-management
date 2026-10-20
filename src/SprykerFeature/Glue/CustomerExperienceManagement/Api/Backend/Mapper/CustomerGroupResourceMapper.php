@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace SprykerFeature\Glue\CustomerExperienceManagement\Api\Backend\Mapper;
 
 use Generated\Api\Backend\CustomerGroupsBackendResource;
+use Generated\Shared\Transfer\CustomerGroupCompanyBusinessUnitTransfer;
+use Generated\Shared\Transfer\CustomerGroupCompanyTransfer;
 use Generated\Shared\Transfer\CustomerGroupTransfer;
 use Generated\Shared\Transfer\CustomerTransfer;
 
@@ -30,6 +32,14 @@ class CustomerGroupResourceMapper implements CustomerGroupResourceMapperInterfac
     protected const string FIELD_FIRST_NAME = 'firstName';
 
     protected const string FIELD_LAST_NAME = 'lastName';
+
+    protected const string FIELD_COMPANY_UUID = 'companyUuid';
+
+    protected const string FIELD_COMPANY_BUSINESS_UNIT_UUID = 'companyBusinessUnitUuid';
+
+    protected const string FIELD_COMPANY_NAME = 'companyName';
+
+    protected const string FIELD_COMPANY_BUSINESS_UNIT_NAME = 'companyBusinessUnitName';
 
     /**
      * @return array<string, mixed>
@@ -56,6 +66,36 @@ class CustomerGroupResourceMapper implements CustomerGroupResourceMapperInterfac
             static::FIELD_EMAIL => $customerTransfer->getEmail(),
             static::FIELD_FIRST_NAME => $customerTransfer->getFirstName(),
             static::FIELD_LAST_NAME => $customerTransfer->getLastName(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function mapCustomerGroupCompanyTransferToResourceData(
+        CustomerGroupCompanyTransfer $customerGroupCompanyTransfer,
+        string $customerGroupUuid
+    ): array {
+        return [
+            static::FIELD_UUID => $customerGroupUuid,
+            static::FIELD_COMPANY_UUID => $customerGroupCompanyTransfer->getCompanyUuid(),
+            static::FIELD_COMPANY_NAME => $customerGroupCompanyTransfer->getCompanyName(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function mapCustomerGroupCompanyBusinessUnitTransferToResourceData(
+        CustomerGroupCompanyBusinessUnitTransfer $customerGroupCompanyBusinessUnitTransfer,
+        string $customerGroupUuid
+    ): array {
+        return [
+            static::FIELD_UUID => $customerGroupUuid,
+            static::FIELD_COMPANY_BUSINESS_UNIT_UUID => $customerGroupCompanyBusinessUnitTransfer->getCompanyBusinessUnitUuid(),
+            static::FIELD_COMPANY_BUSINESS_UNIT_NAME => $customerGroupCompanyBusinessUnitTransfer->getCompanyBusinessUnitName(),
+            static::FIELD_COMPANY_UUID => $customerGroupCompanyBusinessUnitTransfer->getCompanyUuid(),
+            static::FIELD_COMPANY_NAME => $customerGroupCompanyBusinessUnitTransfer->getCompanyName(),
         ];
     }
 

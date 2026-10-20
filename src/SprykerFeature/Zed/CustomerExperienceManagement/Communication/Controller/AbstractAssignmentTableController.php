@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * Copyright © 2016-present Spryker Systems GmbH. All rights reserved.
+ * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ */
+
+declare(strict_types=1);
+
+namespace SprykerFeature\Zed\CustomerExperienceManagement\Communication\Controller;
+
+use Spryker\Zed\Gui\Communication\Table\AbstractTable;
+use Spryker\Zed\Kernel\Communication\Controller\AbstractController;
+use SprykerFeature\Zed\CustomerExperienceManagement\Communication\Table\AbstractCustomerGroupAssignmentTable;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
+/**
+ * @method \SprykerFeature\Zed\CustomerExperienceManagement\Communication\CustomerExperienceManagementCommunicationFactory getFactory()
+ */
+abstract class AbstractAssignmentTableController extends AbstractController
+{
+    public function selectableTableAction(Request $request): JsonResponse
+    {
+        return $this->jsonResponse(
+            $this->createSelectableTable($this->findIdCustomerGroup($request))->fetchData(),
+        );
+    }
+
+    abstract protected function createSelectableTable(?int $idCustomerGroup): AbstractTable;
+
+    protected function findIdCustomerGroup(Request $request): ?int
+    {
+        $idCustomerGroup = $request->query->get(AbstractCustomerGroupAssignmentTable::PARAM_ID_CUSTOMER_GROUP);
+
+        if ($idCustomerGroup === null || $idCustomerGroup === '') {
+            return null;
+        }
+
+        return $this->castId($idCustomerGroup);
+    }
+}

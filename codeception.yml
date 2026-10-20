@@ -1,6 +1,7 @@
 namespace: SprykerFeatureTest
 include:
     - tests/SprykerFeatureTest/Glue/CustomerExperienceManagement
+    - tests/SprykerFeatureTest/Zed/CustomerExperienceManagement
 
 paths:
     tests: tests/

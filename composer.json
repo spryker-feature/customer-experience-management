@@ -6,7 +6,7 @@
     "require": {
         "php": ">=8.3",
         "spryker/business-on-behalf": "^1.0.0",
-        "spryker/company": "^1.11.0",
+        "spryker/company": "^1.12.0",
         "spryker/company-business-unit": "^2.24.0",
         "spryker/company-role": "^1.14.0",
         "spryker/company-unit-address": "^1.20.0",
@@ -15,12 +15,17 @@
         "spryker/country": "^3.1.0 || ^4.0.0",
         "spryker/customer": "^7.85.0",
         "spryker/customer-access": "^1.0.0",
-        "spryker/customer-group": "^2.14.0",
+        "spryker/customer-group": "^2.15.0",
+        "spryker/customer-group-extension": "^1.0.0",
         "spryker/customer-note": "^1.3.0",
+        "spryker/data-import": "^1.29.0",
         "spryker/glossary": "^3.0.0",
+        "spryker/gui": "^5.10.0",
         "spryker/kernel": "^3.30.0",
         "spryker/locale": "^3.0.0 || ^4.0.0",
         "spryker/permission": "^1.0.0",
+        "spryker/propel": "^3.43.0",
+        "spryker/propel-orm": "^1.0.0",
         "spryker/symfony": "^3.0.0",
         "spryker/transfer": "^3.27.0",
         "spryker/user": "^3.33.0",
@@ -28,9 +33,15 @@
     },
     "require-dev": {
         "spryker/api-platform": "*",
+        "spryker/application": "*",
         "spryker/code-sniffer": "*",
         "spryker/container": "*",
-        "spryker/testify": "*"
+        "spryker/event-dispatcher": "*",
+        "spryker/form": "*",
+        "spryker/store": "*",
+        "spryker/testify": "*",
+        "spryker/twig": "*",
+        "spryker/validator": "*"
     },
     "suggest": {
         "spryker/api-platform": "Required to expose the customers and company-users Backend API resources; without it the resource schemas are never discovered."
@@ -38,7 +49,8 @@
     "autoload": {
         "psr-4": {
             "SprykerFeatureTest\\Glue\\CustomerExperienceManagement\\Helper\\": "tests/SprykerFeatureTest/Glue/CustomerExperienceManagement/_support/Helper/",
-            "SprykerFeature\\": "src/SprykerFeature/"
+            "SprykerFeature\\": "src/SprykerFeature/",
+            "SprykerFeatureTest\\Zed\\CustomerExperienceManagement\\Helper\\": "tests/SprykerFeatureTest/Zed/CustomerExperienceManagement/_support/Helper/"
         }
     },
     "autoload-dev": {

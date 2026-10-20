@@ -16,4 +16,18 @@ interface CompanyBusinessUnitReaderInterface
     public function getCompanyBusinessUnitByUuid(string $uuid): CompanyBusinessUnitTransfer;
 
     public function getParentCompanyBusinessUnitByUuid(string $uuid): CompanyBusinessUnitTransfer;
+
+    /**
+     * @param list<string> $companyBusinessUnitUuids
+     *
+     * @return array<string, \Generated\Shared\Transfer\CompanyBusinessUnitTransfer>
+     */
+    public function getCompanyBusinessUnitsIndexedByUuid(array $companyBusinessUnitUuids): array;
+
+    /**
+     * @param list<string> $companyBusinessUnitUuids
+     *
+     * @return array<string, int>
+     */
+    public function getCompanyBusinessUnitIdsIndexedByUuid(array $companyBusinessUnitUuids): array;
 }

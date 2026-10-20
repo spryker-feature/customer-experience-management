@@ -17,7 +17,7 @@ use SprykerFeature\Glue\CustomerExperienceManagement\CustomerExperienceManagemen
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class CompanyRolesBackendExceptionFactory
+class CompanyRolesBackendExceptionFactory extends AbstractCollectionBackendExceptionFactory
 {
     /**
      * The codes that describe a missing entity rather than a rejected value. Everything else keeps
@@ -40,31 +40,6 @@ class CompanyRolesBackendExceptionFactory
         protected CustomerExperienceManagementConfig $config,
         protected TranslatorInterface $translator,
     ) {
-    }
-
-    /**
-     * @param list<string> $supportedFields
-     */
-    public function createUnsupportedFilterFieldException(string $field, array $supportedFields): GlueApiException
-    {
-        return new GlueApiException(
-            Response::HTTP_BAD_REQUEST,
-            CustomerExperienceManagementConfig::RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD,
-            sprintf(
-                CustomerExperienceManagementConfig::RESPONSE_DETAILS_UNSUPPORTED_FILTER_FIELD,
-                $field,
-                implode(', ', $supportedFields),
-            ),
-        );
-    }
-
-    public function createNonScalarFilterValueException(string $field): GlueApiException
-    {
-        return new GlueApiException(
-            Response::HTTP_BAD_REQUEST,
-            CustomerExperienceManagementConfig::RESPONSE_CODE_UNSUPPORTED_FILTER_FIELD,
-            sprintf(CustomerExperienceManagementConfig::RESPONSE_DETAILS_NON_SCALAR_FILTER_VALUE, $field),
-        );
     }
 
     public function createCompanyRoleNotFoundException(string $uuid): GlueApiException

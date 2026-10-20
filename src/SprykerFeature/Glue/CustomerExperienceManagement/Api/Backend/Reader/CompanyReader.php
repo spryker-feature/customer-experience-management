@@ -38,7 +38,7 @@ class CompanyReader implements CompanyReaderInterface
     /**
      * @param array<int, int> $companyIds
      *
-     * @return array<int, string> Keyed by company id.
+     * @return array<int, string>
      */
     public function getCompanyUuidsByCompanyIds(array $companyIds): array
     {
@@ -57,5 +57,29 @@ class CompanyReader implements CompanyReaderInterface
         }
 
         return $companyUuidsByIdCompany;
+    }
+
+    /**
+     * @param list<string> $companyUuids
+     *
+     * @return array<string, \Generated\Shared\Transfer\CompanyTransfer>
+     */
+    public function getCompaniesIndexedByUuid(array $companyUuids): array
+    {
+        if ($companyUuids === []) {
+            return [];
+        }
+
+        $companyCollectionTransfer = $this->companyFacade->getCompanyCollection(
+            (new CompanyCriteriaFilterTransfer())->setUuids($companyUuids),
+        );
+
+        $companyTransfersByUuid = [];
+
+        foreach ($companyCollectionTransfer->getCompanies() as $companyTransfer) {
+            $companyTransfersByUuid[$companyTransfer->getUuidOrFail()] = $companyTransfer;
+        }
+
+        return $companyTransfersByUuid;
     }
 }

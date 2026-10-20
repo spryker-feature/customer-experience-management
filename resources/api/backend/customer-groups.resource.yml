@@ -118,6 +118,15 @@ resource:
               read: false
           openapiContext:
               summary: 'Update a customer group'
+              requestBody:
+                  content:
+                      application/vnd.api+json:
+                          example:
+                              data:
+                                  type: 'customer-groups'
+                                  attributes:
+                                      name: 'Wholesale partners'
+                                      description: 'Customers eligible for wholesale pricing tiers.'
               responses:
                   200:
                       description: 'Customer group updated. Only the properties present in the payload are applied.'

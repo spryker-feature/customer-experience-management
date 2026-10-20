@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<database xmlns="spryker:schema-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="spryker:schema-01 https://static.spryker.com/schema-01.xsd" name="zed" namespace="Orm\Zed\CustomerExperienceManagement\Persistence" package="src.Orm.Zed.CustomerExperienceManagement.Persistence">
+
+    <table name="spy_customer_group_to_company_business_unit" idMethod="native" allowPkInsert="true">
+        <column name="id_customer_group_to_company_business_unit" type="INTEGER" required="true" autoIncrement="true" primaryKey="true"/>
+        <column name="fk_customer_group" type="INTEGER" required="true"/>
+        <column name="fk_company_business_unit" type="INTEGER" required="true"/>
+
+        <foreign-key name="spy_customer_group_to_company_business_unit-fk_customer_group" foreignTable="spy_customer_group" phpName="CustomerGroup" onDelete="CASCADE" onUpdate="CASCADE">
+            <reference local="fk_customer_group" foreign="id_customer_group"/>
+        </foreign-key>
+
+        <foreign-key name="spy_customer_group_to_cbu-fk_company_business_unit" foreignTable="spy_company_business_unit" phpName="CompanyBusinessUnit" onDelete="CASCADE" onUpdate="CASCADE">
+            <reference local="fk_company_business_unit" foreign="id_company_business_unit"/>
+        </foreign-key>
+
+        <unique name="spy_customer_group_to_company_business_unit-unique">
+            <unique-column name="fk_customer_group"/>
+            <unique-column name="fk_company_business_unit"/>
+        </unique>
+
+        <index name="spy_customer_group_to_cbu-fk_company_business_unit-index">
+            <index-column name="fk_company_business_unit"/>
+        </index>
+
+        <behavior name="timestampable"/>
+
+        <id-method-parameter value="spy_customer_group_to_company_business_unit_pk_seq"/>
+    </table>
+
+</database>
