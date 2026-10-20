@@ -263,10 +263,13 @@ class CompanyCustomerGroupPostSavePluginTest extends Unit
         $this->assertSame([$idCompany], $this->tester->getAssignedCompanyIds($secondCustomerGroupTransfer));
     }
 
+    /**
+     * @disableTransaction
+     */
     public function testUpdateAssignsTheCompanyAfterAFailedUpdateInTheSameProcess(): void
     {
         // Arrange
-        $idCompany = $this->tester->haveApprovedCompany()->getIdCompanyOrFail();
+        $idCompany = $this->tester->haveCompanyWithKey()->getIdCompanyOrFail();
         $customerGroupTransfer = $this->tester->haveCustomerGroup();
         $this->tester->expectThrowable(Exception::class, function () use ($customerGroupTransfer): void {
             $this->updateCompanyAssignment($customerGroupTransfer, [static::ID_COMPANY_NOT_EXISTING], []);
