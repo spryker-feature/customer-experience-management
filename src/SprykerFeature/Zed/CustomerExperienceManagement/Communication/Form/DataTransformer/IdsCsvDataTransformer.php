@@ -91,12 +91,12 @@ class IdsCsvDataTransformer implements DataTransformerInterface
     /**
      * @throws \Symfony\Component\Form\Exception\TransformationFailedException
      */
-    protected function mapId(string $id): int
+    protected function mapId(string $idEntity): int
     {
-        if (preg_match(static::PATTERN_ID, $id) !== 1) {
-            throw new TransformationFailedException(sprintf(static::MESSAGE_INVALID_ID, $id));
+        if (preg_match(static::PATTERN_ID, $idEntity) !== 1) {
+            throw new TransformationFailedException(sprintf(static::MESSAGE_INVALID_ID, $idEntity));
         }
 
-        return (int)$id;
+        return (int)$idEntity;
     }
 }
