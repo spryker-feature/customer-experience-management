@@ -11,11 +11,14 @@ namespace SprykerFeature\Zed\CustomerExperienceManagement\Persistence;
 
 use Orm\Zed\Company\Persistence\SpyCompanyQuery;
 use Orm\Zed\CompanyBusinessUnit\Persistence\SpyCompanyBusinessUnitQuery;
+use Orm\Zed\CompanyUser\Persistence\SpyCompanyUserQuery;
 use Orm\Zed\CustomerExperienceManagement\Persistence\SpyCustomerGroupToCompanyBusinessUnitQuery;
 use Orm\Zed\CustomerExperienceManagement\Persistence\SpyCustomerGroupToCompanyQuery;
 use Orm\Zed\CustomerGroup\Persistence\SpyCustomerGroupToCustomerQuery;
 use Spryker\Zed\Kernel\Persistence\AbstractPersistenceFactory;
 use SprykerFeature\Zed\CustomerExperienceManagement\CustomerExperienceManagementDependencyProvider;
+use SprykerFeature\Zed\CustomerExperienceManagement\Persistence\Propel\Mapper\CompanyUserMapper;
+use SprykerFeature\Zed\CustomerExperienceManagement\Persistence\Propel\Mapper\CustomerGroupMapper;
 use SprykerFeature\Zed\CustomerExperienceManagement\Persistence\Propel\Mapper\CustomerGroupMembershipMapper;
 
 /**
@@ -40,6 +43,16 @@ class CustomerExperienceManagementPersistenceFactory extends AbstractPersistence
         return new CustomerGroupMembershipMapper();
     }
 
+    public function createCompanyUserMapper(): CompanyUserMapper
+    {
+        return new CompanyUserMapper();
+    }
+
+    public function createCustomerGroupMapper(): CustomerGroupMapper
+    {
+        return new CustomerGroupMapper();
+    }
+
     public function getCompanyPropelQuery(): SpyCompanyQuery
     {
         return $this->getProvidedDependency(CustomerExperienceManagementDependencyProvider::PROPEL_QUERY_COMPANY);
@@ -53,5 +66,10 @@ class CustomerExperienceManagementPersistenceFactory extends AbstractPersistence
     public function getCustomerGroupToCustomerPropelQuery(): SpyCustomerGroupToCustomerQuery
     {
         return $this->getProvidedDependency(CustomerExperienceManagementDependencyProvider::PROPEL_QUERY_CUSTOMER_GROUP_TO_CUSTOMER);
+    }
+
+    public function getCompanyUserPropelQuery(): SpyCompanyUserQuery
+    {
+        return $this->getProvidedDependency(CustomerExperienceManagementDependencyProvider::PROPEL_QUERY_COMPANY_USER);
     }
 }

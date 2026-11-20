@@ -28,6 +28,7 @@
         <property name="sendPasswordToken" type="bool"/>
         <property name="storeName" type="string"/>
         <property name="company" type="string"/>
+        <property name="companyUserTransfer" type="CompanyUser"/>
     </transfer>
 
     <transfer name="Locale">
@@ -365,6 +366,17 @@
         <property name="searchTerm" type="string"/>
         <property name="names" type="string[]" singular="name"/>
         <property name="uuids" type="string[]" singular="uuid"/>
+        <property name="customerReferences" type="string[]" singular="customerReference"/>
+        <property name="customerIds" type="int[]" singular="idCustomer"/>
+        <property name="companyIds" type="int[]" singular="idCompany"/>
+        <property name="companyUuids" type="string[]" singular="companyUuid"/>
+        <property name="companyBusinessUnitIds" type="int[]" singular="idCompanyBusinessUnit"/>
+        <property name="companyBusinessUnitUuids" type="string[]" singular="companyBusinessUnitUuid"/>
+    </transfer>
+
+    <transfer name="CustomerCriteriaFilter">
+        <property name="customerIds" type="int[]" singular="idCustomer" strict="true"/>
+        <property name="limit" type="int"/>
     </transfer>
 
     <transfer name="CustomerGroupCriteria" strict="true">
@@ -532,6 +544,24 @@
 
     <transfer name="GlossaryKey">
         <property name="key" type="string"/>
+    </transfer>
+
+    <transfer name="QueryJoinCollection">
+        <property name="queryJoins" type="QueryJoin[]" singular="queryJoin"/>
+    </transfer>
+
+    <transfer name="QueryJoin">
+        <property name="left" type="array" singular="left"/>
+        <property name="right" type="array" singular="right"/>
+        <property name="joinType" type="string"/>
+        <property name="whereConditions" type="QueryWhereCondition[]" singular="queryWhereCondition"/>
+    </transfer>
+
+    <transfer name="QueryWhereCondition">
+        <property name="column" type="string"/>
+        <property name="value" type="string"/>
+        <property name="comparison" type="string"/>
+        <property name="values" type="array" singular="values"/>
     </transfer>
 
 </transfers>

@@ -45,6 +45,14 @@ class CustomerGroupsBackendProviderTest extends BackendApiTestCase
 
     protected const int ITEMS_PER_PAGE = 10;
 
+    protected const string CUSTOMER_REFERENCE = 'DE--1';
+
+    protected const string COMPANY_UUID = '9c2d1f04-3a6b-5e17-8d40-6b1f2a7c3e90';
+
+    protected const string SECOND_COMPANY_UUID = '7a3e5b16-0c2d-5f48-9e61-3d7b2c8a1f05';
+
+    protected const string COMPANY_BUSINESS_UNIT_UUID = '2f6c8a30-5d1e-5b74-a9c2-8e4d1b6f7a13';
+
     protected CustomerExperienceManagementApiTester $tester;
 
     public function testProvideItemReturnsTheGroupAddressedByTheUuid(): void
@@ -209,6 +217,73 @@ class CustomerGroupsBackendProviderTest extends BackendApiTestCase
                 $this->createContextWithQuery(['sort' => 'description']),
             ),
         );
+    }
+
+    public function testProvideCollectionPassesTheAssignmentFiltersToTheFacade(): void
+    {
+        // Arrange
+        $provider = $this->createProviderCapturingCriteria($capturedCriteria);
+
+        // Act
+        $provider->provide(
+            $this->createGetCollectionOperation(),
+            [],
+            $this->createContextWithQuery([
+                'filter' => [
+                    'customer-groups.customerReference' => static::CUSTOMER_REFERENCE,
+                    'customer-groups.companyUuid' => static::COMPANY_UUID,
+                    'customer-groups.companyBusinessUnitUuid' => static::COMPANY_BUSINESS_UNIT_UUID,
+                ],
+            ]),
+        );
+
+        // Assert
+        $customerGroupConditionsTransfer = $capturedCriteria?->getCustomerGroupConditionsOrFail();
+        $this->assertSame([static::CUSTOMER_REFERENCE], $customerGroupConditionsTransfer->getCustomerReferences());
+        $this->assertSame([static::COMPANY_UUID], $customerGroupConditionsTransfer->getCompanyUuids());
+        $this->assertSame([static::COMPANY_BUSINESS_UNIT_UUID], $customerGroupConditionsTransfer->getCompanyBusinessUnitUuids());
+    }
+
+    public function testProvideCollectionAcceptsSeveralValuesOfAnAssignmentFilter(): void
+    {
+        // Arrange
+        $provider = $this->createProviderCapturingCriteria($capturedCriteria);
+
+        // Act
+        $provider->provide(
+            $this->createGetCollectionOperation(),
+            [],
+            $this->createContextWithQuery([
+                'filter' => [
+                    'customer-groups.companyUuid' => [static::COMPANY_UUID, ' ', static::SECOND_COMPANY_UUID, static::COMPANY_UUID],
+                ],
+            ]),
+        );
+
+        // Assert
+        $this->assertSame(
+            [static::COMPANY_UUID, static::SECOND_COMPANY_UUID],
+            $capturedCriteria?->getCustomerGroupConditionsOrFail()->getCompanyUuids(),
+        );
+    }
+
+    public function testProvideCollectionSetsNoAssignmentConditionWithoutAssignmentFilters(): void
+    {
+        // Arrange
+        $provider = $this->createProviderCapturingCriteria($capturedCriteria);
+
+        // Act
+        $provider->provide(
+            $this->createGetCollectionOperation(),
+            [],
+            $this->tester->getContext()->toArray(),
+        );
+
+        // Assert
+        $customerGroupConditionsTransfer = $capturedCriteria?->getCustomerGroupConditionsOrFail();
+        $this->assertSame([], $customerGroupConditionsTransfer->getCustomerReferences());
+        $this->assertSame([], $customerGroupConditionsTransfer->getCompanyUuids());
+        $this->assertSame([], $customerGroupConditionsTransfer->getCompanyBusinessUnitUuids());
     }
 
     public function testProvideCollectionPublishesThePaginationTotalFromTheFacade(): void

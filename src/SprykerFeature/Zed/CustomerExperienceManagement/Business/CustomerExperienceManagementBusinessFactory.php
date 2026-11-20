@@ -11,6 +11,9 @@ namespace SprykerFeature\Zed\CustomerExperienceManagement\Business;
 
 use Generated\Shared\Transfer\DataImporterConfigurationTransfer;
 use Generated\Shared\Transfer\DataImporterDataSourceConfigurationTransfer;
+use Spryker\Zed\Company\Business\CompanyFacadeInterface;
+use Spryker\Zed\CompanyBusinessUnit\Business\CompanyBusinessUnitFacadeInterface;
+use Spryker\Zed\Customer\Business\CustomerFacadeInterface;
 use Spryker\Zed\DataImport\Business\DataImportFactoryTrait;
 use Spryker\Zed\DataImport\Business\Model\DataImporterInterface;
 use Spryker\Zed\DataImport\Business\Model\DataImportStep\DataImportStepInterface;
@@ -26,13 +29,23 @@ use SprykerFeature\Zed\CustomerExperienceManagement\Business\DataImport\Step\Cus
 use SprykerFeature\Zed\CustomerExperienceManagement\Business\DataImport\Writer\CustomerGroupCompanyBusinessUnitDataSetWriter;
 use SprykerFeature\Zed\CustomerExperienceManagement\Business\DataImport\Writer\CustomerGroupCompanyDataSetWriter;
 use SprykerFeature\Zed\CustomerExperienceManagement\Business\DataImport\Writer\CustomerGroupCustomerDataSetWriter;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Expander\CustomerGroupQueryJoinExpander;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Expander\CustomerGroupQueryJoinExpanderInterface;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Reader\AssignedEntityNameReader;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Reader\AssignedEntityNameReaderInterface;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Reader\CompanyUserCustomerGroupReader;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Reader\CompanyUserCustomerGroupReaderInterface;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Resolver\CompanyBusinessUnitAncestorResolver;
+use SprykerFeature\Zed\CustomerExperienceManagement\Business\Resolver\CompanyBusinessUnitAncestorResolverInterface;
 use SprykerFeature\Zed\CustomerExperienceManagement\Business\Writer\CustomerGroupCompanyBusinessUnitRelationWriter;
 use SprykerFeature\Zed\CustomerExperienceManagement\Business\Writer\CustomerGroupCompanyBusinessUnitRelationWriterInterface;
 use SprykerFeature\Zed\CustomerExperienceManagement\Business\Writer\CustomerGroupCompanyRelationWriter;
 use SprykerFeature\Zed\CustomerExperienceManagement\Business\Writer\CustomerGroupCompanyRelationWriterInterface;
+use SprykerFeature\Zed\CustomerExperienceManagement\CustomerExperienceManagementDependencyProvider;
 
 /**
  * @method \SprykerFeature\Zed\CustomerExperienceManagement\Persistence\CustomerExperienceManagementEntityManagerInterface getEntityManager()
+ * @method \SprykerFeature\Zed\CustomerExperienceManagement\Persistence\CustomerExperienceManagementRepositoryInterface getRepository()
  * @method \SprykerFeature\Zed\CustomerExperienceManagement\CustomerExperienceManagementConfig getConfig()
  */
 class CustomerExperienceManagementBusinessFactory extends AbstractBusinessFactory
@@ -53,6 +66,19 @@ class CustomerExperienceManagementBusinessFactory extends AbstractBusinessFactor
             $this->getEntityManager(),
             $this->getConfig(),
         );
+    }
+
+    public function createCompanyUserCustomerGroupReader(): CompanyUserCustomerGroupReaderInterface
+    {
+        return new CompanyUserCustomerGroupReader(
+            $this->getRepository(),
+            $this->createCompanyBusinessUnitAncestorResolver(),
+        );
+    }
+
+    public function createCompanyBusinessUnitAncestorResolver(): CompanyBusinessUnitAncestorResolverInterface
+    {
+        return new CompanyBusinessUnitAncestorResolver();
     }
 
     public function getCustomerGroupDataImporter(
@@ -211,5 +237,34 @@ class CustomerExperienceManagementBusinessFactory extends AbstractBusinessFactor
             $this->getEntityManager(),
             $this->getConfig(),
         );
+    }
+
+    public function createCustomerGroupQueryJoinExpander(): CustomerGroupQueryJoinExpanderInterface
+    {
+        return new CustomerGroupQueryJoinExpander();
+    }
+
+    public function createAssignedEntityNameReader(): AssignedEntityNameReaderInterface
+    {
+        return new AssignedEntityNameReader(
+            $this->getCustomerFacade(),
+            $this->getCompanyFacade(),
+            $this->getCompanyBusinessUnitFacade(),
+        );
+    }
+
+    public function getCustomerFacade(): CustomerFacadeInterface
+    {
+        return $this->getProvidedDependency(CustomerExperienceManagementDependencyProvider::FACADE_CUSTOMER);
+    }
+
+    public function getCompanyFacade(): CompanyFacadeInterface
+    {
+        return $this->getProvidedDependency(CustomerExperienceManagementDependencyProvider::FACADE_COMPANY);
+    }
+
+    public function getCompanyBusinessUnitFacade(): CompanyBusinessUnitFacadeInterface
+    {
+        return $this->getProvidedDependency(CustomerExperienceManagementDependencyProvider::FACADE_COMPANY_BUSINESS_UNIT);
     }
 }

@@ -26,3 +26,5 @@ Selected,Selected
 "At most %limit% entries can be selected at a time.","At most %limit% entries can be selected at a time."
 Actions,Actions
 Edit,Edit
+"Business Unit","Business Unit"
+Customer,Customer

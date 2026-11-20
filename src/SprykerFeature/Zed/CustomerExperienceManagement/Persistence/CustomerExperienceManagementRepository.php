@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace SprykerFeature\Zed\CustomerExperienceManagement\Persistence;
 
+use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CustomerGroupCompanyBusinessUnitCollectionTransfer;
 use Generated\Shared\Transfer\CustomerGroupCompanyBusinessUnitConditionsTransfer;
 use Generated\Shared\Transfer\CustomerGroupCompanyBusinessUnitCriteriaTransfer;
@@ -18,6 +19,7 @@ use Generated\Shared\Transfer\CustomerGroupCompanyCriteriaTransfer;
 use Generated\Shared\Transfer\PaginationTransfer;
 use Orm\Zed\Company\Persistence\Map\SpyCompanyTableMap;
 use Orm\Zed\CompanyBusinessUnit\Persistence\Map\SpyCompanyBusinessUnitTableMap;
+use Orm\Zed\CompanyUser\Persistence\Map\SpyCompanyUserTableMap;
 use Orm\Zed\CustomerExperienceManagement\Persistence\Map\SpyCustomerGroupToCompanyBusinessUnitTableMap;
 use Orm\Zed\CustomerExperienceManagement\Persistence\Map\SpyCustomerGroupToCompanyTableMap;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -218,6 +220,111 @@ class CustomerExperienceManagementRepository extends AbstractRepository implemen
             ->getData();
 
         return array_values(array_map('intval', $assignedCompanyBusinessUnitIds));
+    }
+
+    /**
+     * @module CompanyUser
+     * @module Company
+     */
+    public function findActiveCompanyUserByIdCompanyUserAndIdCustomer(int $idCompanyUser, int $idCustomer): ?CompanyUserTransfer
+    {
+        /** @var array<string, mixed>|null $companyUserRow */
+        $companyUserRow = $this->getFactory()
+            ->getCompanyUserPropelQuery()
+            ->filterByIdCompanyUser($idCompanyUser)
+            ->filterByFkCustomer($idCustomer)
+            ->filterByIsActive(true)
+            ->useCompanyQuery()
+                ->filterByIsActive(true)
+                ->filterByStatus(SpyCompanyTableMap::COL_STATUS_APPROVED)
+            ->endUse()
+            ->select([
+                SpyCompanyUserTableMap::COL_ID_COMPANY_USER,
+                SpyCompanyUserTableMap::COL_FK_CUSTOMER,
+                SpyCompanyUserTableMap::COL_FK_COMPANY,
+                SpyCompanyUserTableMap::COL_FK_COMPANY_BUSINESS_UNIT,
+            ])
+            ->findOne();
+
+        if ($companyUserRow === null) {
+            return null;
+        }
+
+        return $this->getFactory()
+            ->createCompanyUserMapper()
+            ->mapCompanyUserRowToCompanyUserTransfer($companyUserRow, new CompanyUserTransfer());
+    }
+
+    /**
+     * @module CompanyBusinessUnit
+     *
+     * @return array<int, int|null>
+     */
+    public function getParentCompanyBusinessUnitIdsByIdCompany(int $idCompany): array
+    {
+        /** @var array<array<string, mixed>> $companyBusinessUnitRows */
+        $companyBusinessUnitRows = $this->getFactory()
+            ->getCompanyBusinessUnitPropelQuery()
+            ->filterByFkCompany($idCompany)
+            ->select([
+                SpyCompanyBusinessUnitTableMap::COL_ID_COMPANY_BUSINESS_UNIT,
+                SpyCompanyBusinessUnitTableMap::COL_FK_PARENT_COMPANY_BUSINESS_UNIT,
+            ])
+            ->find()
+            ->getData();
+
+        $parentCompanyBusinessUnitIds = [];
+
+        foreach ($companyBusinessUnitRows as $companyBusinessUnitRow) {
+            $idParentCompanyBusinessUnit = $companyBusinessUnitRow[SpyCompanyBusinessUnitTableMap::COL_FK_PARENT_COMPANY_BUSINESS_UNIT];
+            $parentCompanyBusinessUnitIds[(int)$companyBusinessUnitRow[SpyCompanyBusinessUnitTableMap::COL_ID_COMPANY_BUSINESS_UNIT]] =
+                $idParentCompanyBusinessUnit === null ? null : (int)$idParentCompanyBusinessUnit;
+        }
+
+        return $parentCompanyBusinessUnitIds;
+    }
+
+    /**
+     * @module CustomerGroup
+     *
+     * @param list<int> $companyBusinessUnitIds
+     *
+     * @return array<int, list<\Generated\Shared\Transfer\CustomerGroupTransfer>>
+     */
+    public function getCustomerGroupTransfersGroupedByIdCompanyBusinessUnit(array $companyBusinessUnitIds): array
+    {
+        $customerGroupToCompanyBusinessUnitEntities = $this->getFactory()
+            ->createCustomerGroupToCompanyBusinessUnitQuery()
+            ->filterByFkCompanyBusinessUnit_In($companyBusinessUnitIds)
+            ->joinWithCustomerGroup()
+            ->orderByFkCustomerGroup()
+            ->find();
+
+        return $this->getFactory()
+            ->createCustomerGroupMapper()
+            ->mapCustomerGroupToCompanyBusinessUnitEntitiesToCustomerGroupTransfersByIdCompanyBusinessUnit(
+                $customerGroupToCompanyBusinessUnitEntities,
+                array_fill_keys($companyBusinessUnitIds, []),
+            );
+    }
+
+    /**
+     * @module CustomerGroup
+     *
+     * @return list<\Generated\Shared\Transfer\CustomerGroupTransfer>
+     */
+    public function getCustomerGroupTransfersByIdCompany(int $idCompany): array
+    {
+        $customerGroupToCompanyEntities = $this->getFactory()
+            ->createCustomerGroupToCompanyQuery()
+            ->filterByFkCompany($idCompany)
+            ->joinWithCustomerGroup()
+            ->orderByFkCustomerGroup()
+            ->find();
+
+        return $this->getFactory()
+            ->createCustomerGroupMapper()
+            ->mapCustomerGroupToCompanyEntitiesToCustomerGroupTransfers($customerGroupToCompanyEntities);
     }
 
     protected function applyCustomerGroupCompanyConditions(

@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace SprykerFeature\Zed\CustomerExperienceManagement\Persistence;
 
+use Generated\Shared\Transfer\CompanyUserTransfer;
 use Generated\Shared\Transfer\CustomerGroupCompanyBusinessUnitCollectionTransfer;
 use Generated\Shared\Transfer\CustomerGroupCompanyBusinessUnitCriteriaTransfer;
 use Generated\Shared\Transfer\CustomerGroupCompanyCollectionTransfer;
@@ -51,4 +52,23 @@ interface CustomerExperienceManagementRepositoryInterface
      * @return list<int>
      */
     public function getAssignedCompanyBusinessUnitIds(int $idCustomerGroup, array $companyBusinessUnitIds): array;
+
+    public function findActiveCompanyUserByIdCompanyUserAndIdCustomer(int $idCompanyUser, int $idCustomer): ?CompanyUserTransfer;
+
+    /**
+     * @return array<int, int|null>
+     */
+    public function getParentCompanyBusinessUnitIdsByIdCompany(int $idCompany): array;
+
+    /**
+     * @param list<int> $companyBusinessUnitIds
+     *
+     * @return array<int, list<\Generated\Shared\Transfer\CustomerGroupTransfer>>
+     */
+    public function getCustomerGroupTransfersGroupedByIdCompanyBusinessUnit(array $companyBusinessUnitIds): array;
+
+    /**
+     * @return list<\Generated\Shared\Transfer\CustomerGroupTransfer>
+     */
+    public function getCustomerGroupTransfersByIdCompany(int $idCompany): array;
 }

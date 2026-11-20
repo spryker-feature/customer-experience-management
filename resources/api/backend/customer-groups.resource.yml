@@ -19,7 +19,11 @@ resource:
               pagination summary is returned as top-level `meta.pagination` with `links.first/last/prev/next`.
               Free-text search: `q`, OR-matched against name and description.
               Filters follow the JSON:API `filter[customer-groups.<property>]` form:
-              `filter[customer-groups.name]` (exact, case-insensitive).
+              `filter[customer-groups.name]` (exact, case-insensitive),
+              `filter[customer-groups.customerReference]`, `filter[customer-groups.companyUuid]` and
+              `filter[customer-groups.companyBusinessUnitUuid]` (the groups the customer, company or business
+              unit is directly assigned to; repeat the key with `[]` to pass several values, and a group
+              matches when it is assigned to any of them). Different filters are combined with AND.
               Sorting: `sort` accepts name or createdAt, prefixed with `-` for descending; an
               unsupported field returns 400.
               The members of a group are neither part of this response nor available as an
@@ -41,6 +45,39 @@ resource:
                     schema:
                         type: string
                     example: 'Wholesale partners'
+                  - name: 'filter[customer-groups.customerReference]'
+                    in: query
+                    required: false
+                    description: 'Return only the groups the customer with this reference is directly assigned to. Repeat as `filter[customer-groups.customerReference][]` for several customers.'
+                    schema:
+                        oneOf:
+                            - type: string
+                            - type: array
+                              items:
+                                  type: string
+                    example: 'DE--1'
+                  - name: 'filter[customer-groups.companyUuid]'
+                    in: query
+                    required: false
+                    description: 'Return only the groups the company with this uuid is directly assigned to, not the groups of its business units. Repeat as `filter[customer-groups.companyUuid][]` for several companies.'
+                    schema:
+                        oneOf:
+                            - type: string
+                            - type: array
+                              items:
+                                  type: string
+                    example: '4b1e6a02-9f37-5c48-b6d1-2e8a70c9f4a5'
+                  - name: 'filter[customer-groups.companyBusinessUnitUuid]'
+                    in: query
+                    required: false
+                    description: 'Return only the groups the business unit with this uuid is directly assigned to, not the groups of its company. Repeat as `filter[customer-groups.companyBusinessUnitUuid][]` for several business units.'
+                    schema:
+                        oneOf:
+                            - type: string
+                            - type: array
+                              items:
+                                  type: string
+                    example: '9c2d1f04-3a6b-5e17-8d40-6b1f2a7c3e90'
                   - name: 'sort'
                     in: query
                     required: false

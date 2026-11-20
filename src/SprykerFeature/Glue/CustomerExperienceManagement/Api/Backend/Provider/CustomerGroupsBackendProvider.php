@@ -32,6 +32,12 @@ class CustomerGroupsBackendProvider extends AbstractBackendProvider
 
     protected const string FILTER_NAME = 'name';
 
+    protected const string FILTER_CUSTOMER_REFERENCE = 'customerReference';
+
+    protected const string FILTER_COMPANY_UUID = 'companyUuid';
+
+    protected const string FILTER_COMPANY_BUSINESS_UNIT_UUID = 'companyBusinessUnitUuid';
+
     public function __construct(
         protected SerializerServiceInterface $serializer,
         protected CustomerGroupReaderInterface $customerGroupReader,
@@ -92,6 +98,11 @@ class CustomerGroupsBackendProvider extends AbstractBackendProvider
             $customerGroupConditionsTransfer->addName($filters[static::FILTER_NAME]);
         }
 
+        $customerGroupConditionsTransfer
+            ->setCustomerReferences($this->findUniqueFilterValues($filters, static::FILTER_CUSTOMER_REFERENCE))
+            ->setCompanyUuids($this->findUniqueFilterValues($filters, static::FILTER_COMPANY_UUID))
+            ->setCompanyBusinessUnitUuids($this->findUniqueFilterValues($filters, static::FILTER_COMPANY_BUSINESS_UNIT_UUID));
+
         $customerGroupCriteriaTransfer = (new CustomerGroupCriteriaTransfer())
             ->setCustomerGroupConditions($customerGroupConditionsTransfer)
             ->setPagination($this->buildPaginationTransfer());
@@ -107,6 +118,16 @@ class CustomerGroupsBackendProvider extends AbstractBackendProvider
         }
 
         return $customerGroupCriteriaTransfer;
+    }
+
+    /**
+     * @param array<string, mixed> $filters
+     *
+     * @return list<string>
+     */
+    protected function findUniqueFilterValues(array $filters, string $key): array
+    {
+        return array_values(array_unique($this->collectionQueryReader->findFilterValues($filters, $key)));
     }
 
     /**

@@ -1,5 +1,7 @@
 {
     "include": {
+        "spryker/company-business-unit-gui": "Provides the `/company-business-unit-gui/suggest/all-companies` endpoint that CompanyBusinessUnitCustomerGroupAssignmentFilterPlugin uses for value suggestions.",
+        "spryker/company-gui": "Provides the `/company-gui/suggest` endpoint that CompanyCustomerGroupAssignmentFilterPlugin uses for value suggestions.",
         "spryker/transfer": "Provides transfer objects definition with strict types and `::get*OrFail()` functionality.",
         "spryker/user": "Publishes the acting user of a Backend API request, which ActingUserReader reads from the request attributes."
     }
